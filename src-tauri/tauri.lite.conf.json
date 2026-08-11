@@ -1,0 +1,23 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "bundle": {
+    "targets": "msi",
+    "externalBin": [],
+    "windows": {
+      "wix": {
+        "language": "ja-JP"
+      }
+    },
+    "resources": {
+      "binaries/gemma_daemon-x86_64-pc-windows-msvc/": "gemma_daemon/",
+      "../python-sidecar/whisper-cpp/ggml-base.dll": "whisper-cpp/ggml-base.dll",
+      "../python-sidecar/whisper-cpp/ggml-cpu.dll": "whisper-cpp/ggml-cpu.dll",
+      "../python-sidecar/whisper-cpp/ggml-silero-v6.2.0.bin": "whisper-cpp/ggml-silero-v6.2.0.bin",
+      "../python-sidecar/whisper-cpp/ggml.dll": "whisper-cpp/ggml.dll",
+      "../python-sidecar/whisper-cpp/whisper-cli.exe": "whisper-cpp/whisper-cli.exe",
+      "../python-sidecar/whisper-cpp/whisper.dll": "whisper-cpp/whisper.dll",
+      "resources/THIRD_PARTY_NOTICES.txt": "THIRD_PARTY_NOTICES.txt",
+      "resources/licenses/": "licenses/"
+    }
+  }
+}

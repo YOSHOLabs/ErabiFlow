@@ -1,0 +1,45 @@
+TateClip Source Code Terms
+Copyright (c) 2026 YOSHOLabs. All Rights Reserved.
+
+TateClip is publicly visible for portfolio, technical review, security review,
+and evaluation purposes. It is not open-source software and is not licensed
+under an OSI-approved open-source license.
+
+Subject to these terms, YOSHOLabs grants you a limited, revocable,
+non-exclusive, non-transferable right to download, compile, and run an
+unmodified copy of the source code locally, solely for personal evaluation,
+testing, security research, or educational reference.
+
+Except where applicable law expressly permits otherwise, you may not:
+
+1. use the source code or a compiled build in production or for commercial
+   purposes;
+2. copy TateClip code into another product or service;
+3. modify, publish, distribute, redistribute, sublicense, sell, or otherwise
+   make the source code or a compiled build available to another person;
+4. release a derivative work or provide TateClip as a hosted service; or
+5. use TateClip names, logos, icons, or other brand assets except for truthful
+   reference to this repository.
+
+Making the repository public, or using GitHub features such as viewing or
+forking, does not grant any additional copyright, patent, trademark, or other
+license beyond rights that GitHub's terms or applicable law require.
+
+Third-party components, libraries, models, and tools are governed by their own
+licenses. Their notices and provenance are identified in
+src-tauri/resources/THIRD_PARTY_NOTICES.txt and
+docs/THIRD_PARTY_PROVENANCE.md. These terms do not restrict rights granted by
+those third-party licenses.
+
+Any generally distributed TateClip application may be governed by a separate
+end-user license agreement or terms of use. Permission to use such an
+application does not grant permission to reuse or redistribute this source
+code.
+
+THE SOURCE CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, AND NON-INFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY LAW,
+YOSHOLABS SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING
+FROM THE SOURCE CODE OR ITS USE.
+
+All rights not expressly granted above are reserved by YOSHOLabs.

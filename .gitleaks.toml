@@ -1,0 +1,19 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated dependencies, build outputs, test media, and local runtime downloads are never published"
+paths = [
+  '''(^|/)\.git/''',
+  '''(^|/)node_modules/''',
+  '''(^|/)\.venv/''',
+  '''(^|/)\.audit-venv/''',
+  '''(^|/)dist/''',
+  '''(^|/)site-dist/''',
+  '''(^|/)test-results/''',
+  '''(^|/)\.codex-tmp/''',
+  '''(^|/)\.tmp[^/]*/''',
+  '''(^|/)src-tauri/target[^/]*/''',
+  '''(^|/)python-sidecar/(?:build|dist|whisper-cpp)/''',
+  '''(^|/)test-assets/'''
+]

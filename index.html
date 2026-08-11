@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TateClip</title>
+    <meta name="description" content="長時間動画の見どころ・盛り上がり・不要部分の判断を支援し、編集ソフトへ渡す区間を選ぶWindowsアプリ" />
+    <link rel="icon" type="image/png" href="/brand/tateclip-icon.png" />
+    <style>
+      :root {
+        --font-geist-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --font-geist-mono: 'Courier New', monospace;
+      }
+      html, body, #root {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #090a0d;
+      }
+      .vfocus-boot {
+        box-sizing: border-box;
+        display: grid;
+        min-height: 100%;
+        place-items: center;
+        color: #e4e4e7;
+        font-family: var(--font-geist-sans);
+        background:
+          radial-gradient(circle at 50% 42%, rgba(34, 211, 238, 0.07), transparent 28rem),
+          #090a0d;
+      }
+      .vfocus-boot__content { text-align: center; }
+      .vfocus-boot__mark {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 20px;
+        border: 1px solid rgba(103, 232, 249, 0.28);
+        border-radius: 14px;
+        object-fit: cover;
+        box-shadow: 0 0 40px rgba(34, 211, 238, 0.12);
+      }
+      .vfocus-boot__title { margin: 0; font-size: 14px; font-weight: 650; letter-spacing: .03em; }
+      .vfocus-boot__status { margin: 9px 0 0; color: #71717a; font-size: 11px; }
+      .vfocus-boot__bar {
+        width: 150px;
+        height: 2px;
+        margin: 22px auto 0;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255,255,255,.06);
+      }
+      .vfocus-boot__bar::after {
+        display: block;
+        width: 45%;
+        height: 100%;
+        border-radius: inherit;
+        background: #22d3ee;
+        content: '';
+        animation: vfocus-boot-progress 1.25s ease-in-out infinite;
+      }
+      @keyframes vfocus-boot-progress {
+        from { transform: translateX(-120%); }
+        to { transform: translateX(330%); }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div id="root">
+      <main class="vfocus-boot" aria-live="polite" aria-label="TateClipを起動中">
+        <div class="vfocus-boot__content">
+          <img class="vfocus-boot__mark" src="/brand/tateclip-icon.png" alt="" />
+          <p class="vfocus-boot__title">TateClipを起動しています</p>
+          <p class="vfocus-boot__status">ラフカットワークスペースを準備中...</p>
+          <div class="vfocus-boot__bar" aria-hidden="true"></div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

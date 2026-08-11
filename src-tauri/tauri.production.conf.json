@@ -1,0 +1,35 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "TateClip",
+  "identifier": "com.yosholabs.tateclip",
+  "bundle": {
+    "targets": "msi",
+    "createUpdaterArtifacts": true,
+    "externalBin": [
+      "binaries/ffmpeg"
+    ],
+    "windows": {
+      "wix": {
+        "language": "ja-JP",
+        "upgradeCode": "aa073e37-0613-4f8d-a87a-c1baeb773a48"
+      }
+    },
+    "resources": {
+      "binaries/gemma_daemon-x86_64-pc-windows-msvc/": "gemma_daemon/",
+      "../python-sidecar/whisper-cpp/": "whisper-cpp/",
+      "resources/THIRD_PARTY_NOTICES.txt": "THIRD_PARTY_NOTICES.txt",
+      "resources/licenses/": "licenses/"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIwOUM0NTg1MTc4RDVGQjIKUldTeVg0MFhoVVdjSUNrNDlycTVHTGk3V2lKb3FkaHhFdndRYUV4T1gwcHYvbU5GZ2FBUVdFWG0K",
+      "endpoints": [
+        "https://example.invalid/tateclip/stable/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

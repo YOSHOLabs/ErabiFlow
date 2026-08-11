@@ -1,0 +1,49 @@
+[package]
+name = "app"
+version = "0.1.0"
+description = "長時間動画の見どころ・盛り上がり・不要部分の判断を支援し、編集ソフトへ渡す区間を選ぶWindowsアプリ"
+authors = ["YOSHOLabs"]
+license-file = "../LICENSE"
+repository = "https://github.com/YOSHOLabs/TateClip"
+edition = "2021"
+rust-version = "1.93.0"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.11.5", features = ["protocol-asset"] }
+tauri-plugin-log = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+regex = "1"
+tokio = { version = "1", features = ["process", "io-util", "sync", "time", "fs"] }
+uuid = { version = "1", features = ["v4"] }
+chrono = "0.4"
+reqwest = { version = "0.12", features = ["json", "stream"] }
+futures-util = "0.3"
+ttf-parser = "0.25"
+base64 = "0.22"
+ed25519-dalek = "2"
+sha2 = "0.10"
+zip = { version = "2.4.2", default-features = false, features = ["deflate"] }
+tauri-plugin-opener = "2"
+tauri-plugin-process = "2.3.1"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.55"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security", "Win32_Storage_FileSystem", "Win32_System_JobObjects", "Win32_System_Threading"] }
+
+[target.'cfg(any(target_os = "macos", windows, target_os = "linux"))'.dependencies]
+tauri-plugin-updater = "2.10.1"

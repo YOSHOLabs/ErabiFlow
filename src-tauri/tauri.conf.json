@@ -1,0 +1,81 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "TateClip Dev",
+  "version": "0.1.0",
+  "identifier": "com.yosholabs.tateclip.dev",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "TateClip",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1180,
+        "minHeight": 720,
+        "backgroundColor": "#090a0d",
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "connect-src": "ipc: http://ipc.localhost",
+        "script-src": "'self' 'wasm-unsafe-eval'",
+        "style-src": "'self' 'unsafe-inline'",
+        "font-src": "'self' data:",
+        "img-src": "'self' asset: http://asset.localhost vfocus: http://vfocus.localhost blob: data:",
+        "media-src": "'self' asset: http://asset.localhost vfocus: http://vfocus.localhost blob:",
+        "worker-src": "'self' blob:",
+        "object-src": "'none'",
+        "base-uri": "'self'",
+        "frame-ancestors": "'none'"
+      },
+      "devCsp": {
+        "default-src": "'self'",
+        "connect-src": "ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1420",
+        "script-src": "'self' 'wasm-unsafe-eval'",
+        "style-src": "'self' 'unsafe-inline'",
+        "font-src": "'self' data:",
+        "img-src": "'self' asset: http://asset.localhost vfocus: http://vfocus.localhost blob: data:",
+        "media-src": "'self' asset: http://asset.localhost vfocus: http://vfocus.localhost blob:",
+        "worker-src": "'self' blob:",
+        "object-src": "'none'",
+        "base-uri": "'self'",
+        "frame-ancestors": "'none'"
+      },
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Permissions-Policy": "camera=(), microphone=(self), geolocation=()"
+      },
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$RESOURCE/**/*"
+        ]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "YOSHOLabs",
+    "category": "Video",
+    "shortDescription": "長時間動画の見どころ・不要部分の判断を支援し、編集ソフトへ渡す区間を選ぶWindowsアプリ",
+    "longDescription": "横・縦動画をローカルで解析し、見どころ候補と判断根拠を提示します。人がKEEP区間を決め、元画角のラフカット動画とNLE向けデータを書き出せます。",
+    "copyright": "Copyright © 2026 YOSHOLabs. All Rights Reserved.",
+    "externalBin": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+name: Feature request
+description: 見どころ判断とNLE受け渡しを改善する提案
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 解決したい問題
+      description: 実装案より先に、動画確認や受け渡しのどこで困るかを説明してください。
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: 希望するワークフロー
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 主な対象
+      options:
+        - 見どころ候補と根拠
+        - KEEP／没判断
+        - ラフカットタイムライン
+        - EDL／SRT／CSV／JSON受け渡し
+        - 横・縦素材のプレビュー／出力
+        - セットアップ／配布
+        - その他
+    validations:
+      required: true

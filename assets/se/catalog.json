@@ -1,0 +1,8 @@
+[
+  {"id": "laugh", "label": "笑い声・ウケ", "file": "laugh.wav", "tags": ["funny", "reaction", "comedy"]},
+  {"id": "surprise", "label": "驚き・衝撃", "file": "surprise.wav", "tags": ["shock", "wow", "impact"]},
+  {"id": "fanfare", "label": "ファンファーレ", "file": "fanfare.wav", "tags": ["win", "success", "celebration"]},
+  {"id": "fail", "label": "失敗・ズコー", "file": "fail.wav", "tags": ["miss", "fail", "funny"]},
+  {"id": "drumroll", "label": "ドラムロール", "file": "drumroll.wav", "tags": ["tension", "buildup", "suspense"]},
+  {"id": "notification", "label": "通知音", "file": "notification.wav", "tags": ["alert", "info", "ping"]}
+]

@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "fidelity": {
+    "exact": "The preview and export share the same numerical semantics.",
+    "approximate": "Both paths support the feature, but different renderers may produce visible differences.",
+    "unsupported": "The renderer intentionally does not apply the feature."
+  },
+  "color": [
+    {
+      "id": "numericAdjustments",
+      "preview": "approximate",
+      "export": "exact",
+      "canvasMarker": "colorToCanvasFilter",
+      "ffmpegMarker": "curves=all=",
+      "fields": ["brightness", "contrast", "saturation", "temperature", "tint", "highlights", "shadows", "blacks", "whites", "hue", "hslSaturation", "lightness", "curveShadows", "curveMidtones", "curveHighlights"],
+      "note": "Canvas uses CSS filters while FFmpeg uses curves, hue, and colorbalance."
+    },
+    {
+      "id": "lutPath",
+      "preview": "unsupported",
+      "export": "exact",
+      "canvasMarker": "CanvasはLUTを直接扱えない",
+      "ffmpegMarker": "lut3d=file=",
+      "note": "LUT is export-only; the preview shows the numeric adjustments beneath it."
+    }
+  ],
+  "transitions": [
+    { "id": "none", "preview": "exact", "export": "exact", "target": "none" },
+    { "id": "fade", "preview": "approximate", "export": "exact", "target": "opacity" },
+    { "id": "dissolve", "preview": "approximate", "export": "exact", "target": "opacity" },
+    { "id": "slide", "preview": "approximate", "export": "exact", "target": "positionX" },
+    { "id": "zoom", "preview": "approximate", "export": "exact", "target": "scale" },
+    { "id": "rotate", "preview": "approximate", "export": "exact", "target": "rotation" }
+  ],
+  "playback": [
+    { "id": "constantSpeed", "preview": "exact", "export": "exact", "canvasMarker": "media.playbackRate = advanced ? 1", "ffmpegMarker": "build_atempo_chain" },
+    { "id": "reverseVideo", "preview": "approximate", "export": "exact", "canvasMarker": "clip.reverse || clip.freezeFrame", "ffmpegMarker": ",reverse" },
+    { "id": "freezeFrameVideo", "preview": "approximate", "export": "exact", "canvasMarker": "clip.freezeFrame !== undefined", "ffmpegMarker": "tpad=stop_mode=clone" },
+    { "id": "speedCurveVideo", "preview": "approximate", "export": "exact", "canvasMarker": "clip.speedCurve?.length", "ffmpegMarker": "track_speed_segments" },
+    { "id": "advancedTrackAudio", "preview": "unsupported", "export": "exact", "canvasMarker": "media.muted = !audioEnabled || advanced", "ffmpegMarker": "build_track_advanced_source" }
+  ],
+  "audioEffects": [
+    { "id": "eqLow", "preview": "unsupported", "export": "exact", "ffmpegMarker": "equalizer=f=100:" },
+    { "id": "eqMid", "preview": "unsupported", "export": "exact", "ffmpegMarker": "equalizer=f=1000:" },
+    { "id": "eqHigh", "preview": "unsupported", "export": "exact", "ffmpegMarker": "equalizer=f=8000:" },
+    { "id": "normalize", "preview": "unsupported", "export": "exact", "ffmpegMarker": "loudnorm=I=-16" },
+    { "id": "noiseReduction", "preview": "unsupported", "export": "exact", "ffmpegMarker": "afftdn=nf=" },
+    { "id": "fadeIn", "preview": "unsupported", "export": "exact", "ffmpegMarker": "afade=t=in:" },
+    { "id": "fadeOut", "preview": "unsupported", "export": "exact", "ffmpegMarker": "afade=t=out:" }
+  ],
+  "visualEffects": [
+    { "id": "blur", "preview": "approximate", "export": "exact", "canvasMarker": "effects.blur", "ffmpegMarker": "gblur=sigma=" },
+    { "id": "mosaic", "preview": "approximate", "export": "exact", "canvasMarker": "effects.mosaic", "ffmpegMarker": "flags=neighbor" },
+    { "id": "motionBlur", "preview": "approximate", "export": "exact", "canvasMarker": "effects.motionBlur", "ffmpegMarker": "tmix=frames=" },
+    { "id": "sharpen", "preview": "approximate", "export": "exact", "canvasMarker": "effects.sharpen", "ffmpegMarker": "unsharp=5:5:" },
+    { "id": "noise", "preview": "approximate", "export": "exact", "canvasMarker": "effects.noise", "ffmpegMarker": "noise=alls=" },
+    { "id": "vhs", "preview": "approximate", "export": "exact", "canvasMarker": "effects.vhs", "ffmpegMarker": "drawgrid=w=iw:h=5" },
+    { "id": "film", "preview": "approximate", "export": "exact", "canvasMarker": "effects.film", "ffmpegMarker": "vignette=PI/" },
+    { "id": "glitch", "preview": "approximate", "export": "exact", "canvasMarker": "effects.glitch", "ffmpegMarker": "rv=" },
+    { "id": "rgbShift", "preview": "approximate", "export": "exact", "canvasMarker": "effects.rgbShift", "ffmpegMarker": "rgbashift=rh=" },
+    { "id": "glow", "preview": "approximate", "export": "exact", "canvasMarker": "effects.glow", "ffmpegMarker": "gblur=sigma=" },
+    { "id": "lightLeak", "preview": "approximate", "export": "exact", "canvasMarker": "effects.lightLeak", "ffmpegMarker": "colorbalance=rh=" },
+    { "id": "lensFlare", "preview": "approximate", "export": "exact", "canvasMarker": "effects.lensFlare", "ffmpegMarker": "mode=backward" },
+    { "id": "rain", "preview": "approximate", "export": "exact", "canvasMarker": "effects.rain", "ffmpegMarker": "drawgrid=w=37" },
+    { "id": "snow", "preview": "approximate", "export": "exact", "canvasMarker": "effects.snow", "ffmpegMarker": "noise=alls=" },
+    { "id": "fire", "preview": "approximate", "export": "exact", "canvasMarker": "effects.fire", "ffmpegMarker": "colorbalance=rs=" },
+    { "id": "particles", "preview": "approximate", "export": "exact", "canvasMarker": "effects.particles", "ffmpegMarker": "noise=alls=" },
+    { "id": "shake", "preview": "approximate", "export": "exact", "canvasMarker": "liveEffects.shake", "ffmpegMarker": "rotate='" },
+    { "id": "warp", "preview": "approximate", "export": "exact", "canvasMarker": "liveEffects.warp", "ffmpegMarker": "lenscorrection=k1=" },
+    { "id": "chromaticAberration", "preview": "approximate", "export": "exact", "canvasMarker": "effects.chromaticAberration", "ffmpegMarker": "rgbashift=rh=" },
+    { "id": "chroma", "preview": "approximate", "export": "exact", "canvasMarker": "effects.chroma.enabled", "ffmpegMarker": "chromakey=" },
+    { "id": "mask", "preview": "approximate", "export": "exact", "canvasMarker": "getClipEffects(value).mask", "ffmpegMarker": "geq=r=" }
+  ]
+}
