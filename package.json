@@ -38,7 +38,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@mediapipe/tasks-vision": "^0.10.32",
+    "@mediapipe/tasks-vision": "^1.0.1",
     "@radix-ui/react-slot": "^1.2.4",
     "@tauri-apps/api": "2.11.1",
     "@tauri-apps/plugin-dialog": "^2.6.0",
