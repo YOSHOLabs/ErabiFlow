@@ -28,6 +28,13 @@ pub struct FontResolution {
     pub warning: Option<String>,
 }
 
+#[derive(Clone, Debug)]
+struct FontMetadata {
+    family: String,
+    supports_text: bool,
+    is_bold: bool,
+}
+
 struct SystemFont {
     reference: &'static str,
     label: &'static str,
@@ -282,58 +289,67 @@ fn requested_font_path(reference: &str) -> Option<PathBuf> {
     None
 }
 
-pub fn resolve_font_reference(reference: &str, text: &str) -> FontResolution {
-    let fallback_path = system_font_path(
-        SYSTEM_FONTS
-            .iter()
-            .find(|font| font.reference == "system:meiryo-bold")
-            .expect("Meiryo descriptor must exist"),
-    );
-    let requested_path = requested_font_path(reference).unwrap_or_else(|| fallback_path.clone());
-    let requested = font_bytes(&requested_path)
+fn font_metadata(path: &Path, text: &str) -> Option<FontMetadata> {
+    font_bytes(path)
         .and_then(|bytes| {
             let face = parse_face(&bytes)?;
-            Ok((
-                family_name(&face).unwrap_or_else(|| "Meiryo".to_string()),
-                supports_text(&face, text),
-                face.is_bold(),
-            ))
+            Ok(FontMetadata {
+                family: family_name(&face).unwrap_or_else(|| "sans-serif".to_string()),
+                supports_text: supports_text(&face, text),
+                is_bold: face.is_bold(),
+            })
         })
-        .ok();
+        .ok()
+}
 
-    if let Some((family, true, is_bold)) = requested.as_ref() {
+fn resolve_font_from_candidates<F>(
+    requested_path: PathBuf,
+    requested_is_fallback: bool,
+    requested_exists: bool,
+    fallback_paths: &[PathBuf],
+    text: &str,
+    inspect: F,
+) -> FontResolution
+where
+    F: Fn(&Path, &str) -> Option<FontMetadata>,
+{
+    let requested = inspect(&requested_path, text);
+
+    if let Some(metadata) = requested.as_ref().filter(|metadata| metadata.supports_text) {
         return FontResolution {
             path: requested_path.to_string_lossy().into_owned(),
-            family: family.clone(),
-            fallback_used: requested_path != requested_font_path(reference).unwrap_or_default(),
-            is_bold: *is_bold,
+            family: metadata.family.clone(),
+            fallback_used: requested_is_fallback,
+            is_bold: metadata.is_bold,
             warning: None,
         };
     }
 
-    let fallback = font_bytes(&fallback_path)
-        .and_then(|bytes| {
-            let face = parse_face(&bytes)?;
-            Ok((
-                family_name(&face).unwrap_or_else(|| "Meiryo".to_string()),
-                supports_text(&face, text),
-                face.is_bold(),
-            ))
-        })
-        .ok();
+    let fallback = fallback_paths
+        .iter()
+        .filter(|path| *path != &requested_path)
+        .find_map(|path| {
+            inspect(path, text)
+                .filter(|metadata| metadata.supports_text)
+                .map(|metadata| (path, metadata))
+        });
 
-    if let Some((family, true, is_bold)) = fallback {
-        let missing = !requested_path.exists();
+    if let Some((fallback_path, metadata)) = fallback {
         return FontResolution {
             path: fallback_path.to_string_lossy().into_owned(),
-            family,
+            family: metadata.family.clone(),
             fallback_used: true,
-            is_bold,
-            warning: Some(if missing {
-                "選択フォントが見つからないため、メイリオ Boldで表示・書き出しします。".to_string()
+            is_bold: metadata.is_bold,
+            warning: Some(if !requested_exists {
+                format!(
+                    "選択フォントが見つからないため、{}で表示・書き出しします。",
+                    metadata.family
+                )
             } else {
-                "選択フォントに含まれない文字があるため、メイリオ Boldで表示・書き出しします。"
-                    .to_string()
+                format!(
+                    "選択フォントに含まれない文字があるため、{}で表示・書き出しします。",
+                    metadata.family
+                )
             }),
         };
     }
@@ -342,14 +358,34 @@ pub fn resolve_font_reference(reference: &str, text: &str) -> FontResolution {
         path: requested_path.to_string_lossy().into_owned(),
         family: requested
             .as_ref()
-            .map(|value| value.0.clone())
+            .map(|metadata| metadata.family.clone())
             .unwrap_or_else(|| "sans-serif".to_string()),
         fallback_used: false,
-        is_bold: requested.as_ref().is_some_and(|value| value.2),
+        is_bold: requested.as_ref().is_some_and(|metadata| metadata.is_bold),
         warning: Some(
             "選択フォントを正しく読み込めません。書き出し結果を確認してください。".to_string(),
         ),
     }
+}
+
+pub fn resolve_font_reference(reference: &str, text: &str) -> FontResolution {
+    let requested = requested_font_path(reference);
+    let requested_is_fallback = requested.is_none();
+    let requested_path = requested.unwrap_or_else(|| system_font_path(&SYSTEM_FONTS[0]));
+    let requested_exists = requested_path.exists();
+    let fallback_paths = SYSTEM_FONTS
+        .iter()
+        .map(system_font_path)
+        .collect::<Vec<_>>();
+
+    resolve_font_from_candidates(
+        requested_path,
+        requested_is_fallback,
+        requested_exists,
+        &fallback_paths,
+        text,
+        font_metadata,
+    )
 }
 
 #[tauri::command]
@@ -376,22 +412,95 @@ mod tests {
 
     #[test]
     fn japanese_text_resolves_to_a_font_with_glyphs() {
-        let resolution = resolve_font_reference("Arial", "爆音ルンバ");
-        if cfg!(windows) {
-            assert!(resolution.path.to_lowercase().ends_with("meiryob.ttc"));
-            assert!(resolution.fallback_used);
-            assert!(resolution.family.to_lowercase().contains("meiryo"));
-            assert!(resolution.is_bold);
-        }
+        let requested = PathBuf::from("fixtures/latin-bold.ttf");
+        let fallback_paths = vec![
+            PathBuf::from("fixtures/other-latin.ttf"),
+            PathBuf::from("fixtures/japanese-bold.ttf"),
+        ];
+        let resolution = resolve_font_from_candidates(
+            requested,
+            false,
+            true,
+            &fallback_paths,
+            "爆音ルンバ",
+            |path, _text| match path.file_name().and_then(|name| name.to_str()) {
+                Some("latin-bold.ttf") => Some(FontMetadata {
+                    family: "Fixture Latin".to_string(),
+                    supports_text: false,
+                    is_bold: true,
+                }),
+                Some("other-latin.ttf") => Some(FontMetadata {
+                    family: "Fixture Other Latin".to_string(),
+                    supports_text: false,
+                    is_bold: false,
+                }),
+                Some("japanese-bold.ttf") => Some(FontMetadata {
+                    family: "Fixture Japanese".to_string(),
+                    supports_text: true,
+                    is_bold: true,
+                }),
+                _ => None,
+            },
+        );
+
+        assert!(resolution.path.ends_with("japanese-bold.ttf"));
+        assert!(resolution.fallback_used);
+        assert_eq!(resolution.family, "Fixture Japanese");
+        assert!(resolution.is_bold);
+        assert!(resolution
+            .warning
+            .as_deref()
+            .is_some_and(|warning| warning.contains("Fixture Japanese")));
     }
 
     #[test]
-    fn selected_japanese_system_font_keeps_its_real_weight() {
-        let resolution = resolve_font_reference("system:yu-gothic-bold", "日本語タイトル");
-        if cfg!(windows) {
-            assert!(resolution.path.to_lowercase().ends_with("yugothb.ttc"));
-            assert!(resolution.is_bold);
-            assert!(!resolution.fallback_used);
-        }
+    fn selected_japanese_font_keeps_its_real_weight() {
+        let requested = PathBuf::from("fixtures/japanese-bold.ttf");
+        let resolution = resolve_font_from_candidates(
+            requested,
+            false,
+            true,
+            &[],
+            "日本語タイトル",
+            |_path, _text| {
+                Some(FontMetadata {
+                    family: "Fixture Japanese".to_string(),
+                    supports_text: true,
+                    is_bold: true,
+                })
+            },
+        );
+
+        assert!(resolution.path.ends_with("japanese-bold.ttf"));
+        assert!(resolution.is_bold);
+        assert!(!resolution.fallback_used);
+        assert!(resolution.warning.is_none());
+    }
+
+    #[test]
+    fn missing_japanese_font_reports_the_unresolved_fallback() {
+        let requested = PathBuf::from("fixtures/latin-bold.ttf");
+        let fallback_paths = vec![PathBuf::from("fixtures/other-latin.ttf")];
+        let resolution = resolve_font_from_candidates(
+            requested,
+            false,
+            true,
+            &fallback_paths,
+            "日本語タイトル",
+            |path, _text| {
+                path.file_name()
+                    .and_then(|name| name.to_str())
+                    .map(|name| FontMetadata {
+                        family: name.to_string(),
+                        supports_text: false,
+                        is_bold: true,
+                    })
+            },
+        );
+
+        assert!(resolution.path.ends_with("latin-bold.ttf"));
+        assert!(!resolution.fallback_used);
+        assert_eq!(resolution.family, "latin-bold.ttf");
+        assert!(resolution.warning.is_some());
     }
 }

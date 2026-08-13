@@ -199,8 +199,31 @@ fn build_drawtext(
     enable: Option<&str>,
     opacity: Option<f64>,
 ) -> String {
+    build_drawtext_with_resolver(
+        text,
+        style,
+        x_expr,
+        y_expr,
+        enable,
+        opacity,
+        crate::font::resolve_font_reference,
+    )
+}
+
+fn build_drawtext_with_resolver<F>(
+    text: &str,
+    style: &TextStyle,
+    x_expr: &str,
+    y_expr: &str,
+    enable: Option<&str>,
+    opacity: Option<f64>,
+    resolve_font: F,
+) -> String
+where
+    F: Fn(&str, &str) -> crate::font::FontResolution,
+{
     let escaped = text.replace('\'', "'\\''").replace(':', "\\:");
-    let resolution = crate::font::resolve_font_reference(style.font, text);
+    let resolution = resolve_font(style.font, text);
     let fontfile = escape_filter_path(&resolution.path);
     let mut color = to_ffmpeg_color(style.color);
     if let Some(alpha) = opacity {
@@ -1799,8 +1822,25 @@ mod tests {
             font: "Segoe UI",
             ..default_style()
         };
-        let filter = build_drawtext("爆音ルンバ", &style, "0", "0", None, None);
-        assert!(filter.contains("meiryob.ttc"));
+        let filter = build_drawtext_with_resolver(
+            "爆音ルンバ",
+            &style,
+            "0",
+            "0",
+            None,
+            None,
+            |_reference, text| {
+                assert_eq!(text, "爆音ルンバ");
+                crate::font::FontResolution {
+                    path: r"C:\fixtures\japanese-bold.ttf".to_string(),
+                    family: "Fixture Japanese".to_string(),
+                    fallback_used: true,
+                    is_bold: true,
+                    warning: None,
+                }
+            },
+        );
+        assert!(filter.contains("japanese-bold.ttf"));
         assert!(!filter.contains("segoeui.ttf"));
     }
 
