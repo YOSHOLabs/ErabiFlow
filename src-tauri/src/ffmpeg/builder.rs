@@ -1811,9 +1811,9 @@ mod tests {
         assert!(f.contains("200"));
         assert!(f.contains("crop=ih*(16/9)/1.5000:ih/1.5000"));
         assert!(f.contains("enable='between(t,0.000,3.000)'"));
-        assert!(f
-            .to_lowercase()
-            .contains("fontfile='c\\:/windows/fonts/meiryob.ttc'"));
+        let expected_font =
+            escape_filter_path(&crate::font::resolve_font_reference("Noto Sans JP", "テスト").path);
+        assert!(f.contains(&format!("fontfile='{expected_font}'")));
     }
 
     #[test]
