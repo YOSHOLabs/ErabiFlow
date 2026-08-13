@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "TateClip",
-  "identifier": "com.yosholabs.tateclip",
+  "productName": "ErabiFlow",
+  "identifier": "com.yosholabs.erabiflow",
   "bundle": {
     "targets": "msi",
     "createUpdaterArtifacts": true,
@@ -11,7 +11,7 @@
     "windows": {
       "wix": {
         "language": "ja-JP",
-        "upgradeCode": "aa073e37-0613-4f8d-a87a-c1baeb773a48"
+        "upgradeCode": "92a6d8f9-c8ab-459e-a6db-6f27376dc45b"
       }
     },
     "resources": {
@@ -25,7 +25,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIwOUM0NTg1MTc4RDVGQjIKUldTeVg0MFhoVVdjSUNrNDlycTVHTGk3V2lKb3FkaHhFdndRYUV4T1gwcHYvbU5GZ2FBUVdFWG0K",
       "endpoints": [
-        "https://example.invalid/tateclip/stable/latest.json"
+        "https://example.invalid/erabiflow/stable/latest.json"
       ],
       "windows": {
         "installMode": "passive"

@@ -153,7 +153,7 @@ export function AppUpdateButton() {
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 {import.meta.env.DEV && <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-300">{releaseChannelLabel[releaseChannel]} channel</p>}
-                                <h2 id="update-title" className="mt-1 text-base font-semibold text-zinc-100">TateClip v{currentVersion}</h2>
+                                <h2 id="update-title" className="mt-1 text-base font-semibold text-zinc-100">ErabiFlow v{currentVersion}</h2>
                             </div>
                             <button ref={closeRef} type="button" onClick={() => setOpen(false)} className="rounded-md p-1 text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200" aria-label="閉じる"><X className="h-4 w-4" /></button>
                         </div>

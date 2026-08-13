@@ -330,7 +330,7 @@ pub async fn download_whisper_model(app: tauri::AppHandle) -> Result<WhisperMode
 
     let client = reqwest::Client::builder()
         .connect_timeout(Duration::from_secs(20))
-        .user_agent("TateClip/0.1 model-downloader")
+        .user_agent("ErabiFlow/0.1 model-downloader")
         .build()
         .map_err(|error| format!("AIモデル取得クライアントを作成できません: {error}"))?;
     emit_progress(&app, "downloading", start, "字幕モデルを取得中...");
@@ -502,7 +502,7 @@ mod tests {
     #[test]
     fn sha256_verification_uses_file_bytes() {
         let path = std::env::temp_dir().join(format!(
-            "tateclip-model-hash-{}-{}.bin",
+            "erabiflow-model-hash-{}-{}.bin",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)

@@ -53,13 +53,13 @@ export default function App() {
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex flex-none items-center gap-2.5">
             <img
-              src="/brand/tateclip-icon.png"
+              src="/brand/erabiflow-icon.png"
               alt=""
               className="h-7 w-7 rounded-lg border border-cyan-200/15 object-cover shadow-[0_0_18px_rgba(34,211,238,0.08)]"
             />
             <div>
-              <span className="block text-[13px] font-semibold tracking-[-0.015em] text-zinc-50">TateClip</span>
-              <span className="block text-[8px] font-semibold tracking-[0.12em] text-zinc-600">AI ROUGH CUT ASSISTANT</span>
+              <span className="block text-[13px] font-semibold tracking-[-0.015em] text-zinc-50">ErabiFlow</span>
+              <span className="block text-[8px] font-semibold tracking-[0.12em] text-zinc-600">BY YOSHOLABS</span>
             </div>
           </div>
           <span className="h-6 w-px bg-white/[0.07]" />

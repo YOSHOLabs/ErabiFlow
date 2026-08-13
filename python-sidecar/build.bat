@@ -3,7 +3,7 @@ setlocal EnableExtensions
 
 cd /d "%~dp0"
 
-echo [TateClip] Building gemma_daemon.exe
+echo [ErabiFlow] Building gemma_daemon.exe
 
 set "PYTHON_EXE="
 if exist "..\.venv\Scripts\python.exe" set "PYTHON_EXE=..\.venv\Scripts\python.exe"

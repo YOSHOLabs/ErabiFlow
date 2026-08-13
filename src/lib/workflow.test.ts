@@ -178,7 +178,7 @@ test("書き出しエラーと成功を出力空間の状態へ正しく反映�
         timelineClips: [{ id: "clip", mediaStart: 10, mediaEnd: 25 }],
         processing: {
             phase: "complete",
-            lastOutputPath: "C:\\video_tateclip.mp4",
+            lastOutputPath: "C:\\video_erabiflow.mp4",
             lastError: null,
         },
     }))

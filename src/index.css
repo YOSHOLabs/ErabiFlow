@@ -153,7 +153,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* TateClip's editing UI is built from stable panes, rules and type hierarchy. */
+/* ErabiFlow's editing UI is built from stable panes, rules and type hierarchy. */
 .vf-product-ui {
   --tc-canvas: #080b10;
   --tc-pane: #0e141c;

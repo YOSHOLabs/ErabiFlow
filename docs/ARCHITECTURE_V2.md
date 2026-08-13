@@ -1,4 +1,4 @@
-# TateClip アーキテクチャ方針 v2
+# ErabiFlow アーキテクチャ方針 v2
 
 ## 方針
 

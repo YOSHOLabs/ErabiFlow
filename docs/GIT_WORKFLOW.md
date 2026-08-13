@@ -2,7 +2,7 @@
 
 ## Public repositoryの範囲
 
-`YOSHOLabs/TateClip`はWindows application本体のsource-visible repositoryです。`website/`、private beta資産、配布installer、実動画、外部binary／model、build output、local user dataは含めません。
+`YOSHOLabs/ErabiFlow`はWindows application本体のsource-visible repositoryです。`website/`、private beta資産、配布installer、実動画、外部binary／model、build output、local user dataは含めません。
 
 公開対象には、アプリのソース、lockfile、セットアップ・テスト・監査スクリプト、第三者notice／provenance、外部runtimeを再取得・検証するためのURL／size／SHA-256記録を含めます。
 

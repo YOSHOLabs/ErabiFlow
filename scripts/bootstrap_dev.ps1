@@ -21,7 +21,7 @@ Require-Command "cargo" "Install Rust through rustup; rust-toolchain.toml pins t
 
 $NodeMajor = [int]((& node --version).TrimStart('v').Split('.')[0])
 if ($NodeMajor -ne 24) {
-    throw "TateClip development currently requires Node.js 24.x. Found: $(& node --version)"
+    throw "ErabiFlow development currently requires Node.js 24.x. Found: $(& node --version)"
 }
 
 if (-not $SkipNpm) {
@@ -41,7 +41,7 @@ if (-not $SkipPython) {
     }
     $PythonVersion = (& $VenvPython -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')").Trim()
     if ($LASTEXITCODE -ne 0 -or $PythonVersion -ne "3.13") {
-        throw "TateClip development currently requires a Python 3.13 virtual environment. Found: $PythonVersion"
+        throw "ErabiFlow development currently requires a Python 3.13 virtual environment. Found: $PythonVersion"
     }
     & $VenvPython -m pip install --disable-pip-version-check --require-hashes -r (Join-Path $RootDir "python-sidecar\requirements.txt")
     if ($LASTEXITCODE -ne 0) { throw "Python dependency installation failed." }
@@ -54,7 +54,7 @@ if (-not $SkipPython) {
     }
     $AuditPythonVersion = (& $AuditVenvPython -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')").Trim()
     if ($LASTEXITCODE -ne 0 -or $AuditPythonVersion -ne "3.13") {
-        throw "TateClip dependency auditing currently requires Python 3.13. Found: $AuditPythonVersion"
+        throw "ErabiFlow dependency auditing currently requires Python 3.13. Found: $AuditPythonVersion"
     }
     & $AuditVenvPython -m pip install --disable-pip-version-check --require-hashes -r (Join-Path $RootDir "scripts\requirements-audit.txt")
     if ($LASTEXITCODE -ne 0) { throw "Python dependency-audit tool installation failed." }
@@ -158,4 +158,4 @@ if (-not $SkipWhisper) {
 }
 
 Write-Host "Development setup is ready. Run: npm run tauri dev" -ForegroundColor Green
-Write-Host "FFmpeg is downloaded and verified by TateClip on first use; it is not stored in Git." -ForegroundColor Green
+Write-Host "FFmpeg is downloaded and verified by ErabiFlow on first use; it is not stored in Git." -ForegroundColor Green

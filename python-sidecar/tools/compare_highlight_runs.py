@@ -30,7 +30,7 @@ def _load_optional(path: Path | None) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="TateClipハイライト検出の新旧比較")
+    parser = argparse.ArgumentParser(description="ErabiFlowハイライト検出の新旧比較")
     parser.add_argument("--baseline", required=True, type=Path)
     parser.add_argument("--candidate", required=True, type=Path)
     parser.add_argument("--references", required=True, type=Path)

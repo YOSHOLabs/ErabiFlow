@@ -28,7 +28,7 @@ export function ExportPanel() {
     const preflight = useMemo(() => computeExportPreflight({ inputPath, videoInfo, timelineClips, subtitles }), [inputPath, videoInfo, timelineClips, subtitles])
     const [settings, setSettings] = useState<ExportSettings>(() => {
         try {
-            const saved = JSON.parse(localStorage.getItem("tateclip.exportSettings") ?? "{}")
+            const saved = JSON.parse(localStorage.getItem("erabiflow.exportSettings") ?? "{}")
             return {
                 ...DEFAULT_EXPORT_SETTINGS,
                 format: saved.format ?? "mp4",
@@ -45,7 +45,7 @@ export function ExportPanel() {
     const hiddenVideoRef = useRef<HTMLVideoElement>(null)
 
     useEffect(() => {
-        localStorage.setItem("tateclip.exportSettings", JSON.stringify({ format: settings.format, codec: settings.codec, bitrateKbps: settings.bitrateKbps }))
+        localStorage.setItem("erabiflow.exportSettings", JSON.stringify({ format: settings.format, codec: settings.codec, bitrateKbps: settings.bitrateKbps }))
     }, [settings.bitrateKbps, settings.codec, settings.format])
 
     const sourceWidth = videoInfo?.width ?? 1920

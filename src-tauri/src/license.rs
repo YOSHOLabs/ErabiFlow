@@ -131,7 +131,7 @@ fn verify_token_with_key(
         serde_json::from_slice(&payload).map_err(|_| "ライセンス情報が壊れています".to_string())?;
 
     if claims.version != 1 || claims.plan != "creator" {
-        return Err("このTateClip版では利用できないライセンスです".to_string());
+        return Err("このErabiFlow版では利用できないライセンスです".to_string());
     }
     if claims.installation_id != expected_installation_id {
         return Err("このライセンスは別のPC用です。再発行してください".to_string());
@@ -261,7 +261,7 @@ pub fn require_creator(app: &tauri::AppHandle) -> Result<(), String> {
     } else {
         Err(snapshot
             .message
-            .unwrap_or_else(|| "この処理にはTateClip Creatorライセンスが必要です".to_string()))
+            .unwrap_or_else(|| "この処理にはErabiFlow Creatorライセンスが必要です".to_string()))
     }
 }
 
@@ -274,7 +274,7 @@ pub fn process_uses_creator_features(params: &crate::ProcessParams) -> bool {
         .file_stem()
         .and_then(|value| value.to_str())
         .unwrap_or_default();
-    let basic_output_stem = format!("{input_stem}_tateclip");
+    let basic_output_stem = format!("{input_stem}_erabiflow");
     let rough_cut_output_stem = format!("{basic_output_stem}_roughcut");
     // 通常動画とラフカット、および各PNG連番は単発書き出し設定であり、
     // 候補ごとのラベルを足した旧Creator一括出力とは区別する。
@@ -369,22 +369,22 @@ mod tests {
     fn detects_paid_render_features() {
         let mut params: crate::ProcessParams = serde_json::from_value(serde_json::json!({
             "inputPath": "C:\\\\clips\\\\match.mp4",
-            "outputPath": "C:\\\\clips\\\\match_tateclip.mp4",
+            "outputPath": "C:\\\\clips\\\\match_erabiflow.mp4",
             "gpuType": "CPU",
             "layout": "commentary"
         }))
         .unwrap();
         assert!(!process_uses_creator_features(&params));
-        params.output_path = r"C:\clips\match_tateclip_%05d.png".to_string();
+        params.output_path = r"C:\clips\match_erabiflow_%05d.png".to_string();
         assert!(!process_uses_creator_features(&params));
-        params.output_path = r"C:\clips\match_tateclip_roughcut.mp4".to_string();
+        params.output_path = r"C:\clips\match_erabiflow_roughcut.mp4".to_string();
         params.layout = "source".to_string();
         assert!(!process_uses_creator_features(&params));
-        params.output_path = r"C:\clips\match_tateclip_roughcut_%05d.png".to_string();
+        params.output_path = r"C:\clips\match_erabiflow_roughcut_%05d.png".to_string();
         assert!(!process_uses_creator_features(&params));
-        params.output_path = r"C:\clips\match_tateclip_run_01_clip.mp4".to_string();
+        params.output_path = r"C:\clips\match_erabiflow_run_01_clip.mp4".to_string();
         assert!(process_uses_creator_features(&params));
-        params.output_path = r"C:\clips\match_tateclip.mp4".to_string();
+        params.output_path = r"C:\clips\match_erabiflow.mp4".to_string();
         params.enable_jump_cut = Some(true);
         assert!(process_uses_creator_features(&params));
     }

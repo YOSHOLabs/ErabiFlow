@@ -3,9 +3,9 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = (Resolve-Path (Join-Path $ScriptDir "..")).Path
 Set-Location $RootDir
 
-$DefaultKeyRoot = Join-Path ([Environment]::GetFolderPath('UserProfile')) ".tateclip\updater-keys"
-$KeyPath = if ($env:TATECLIP_STABLE_UPDATER_KEY) { $env:TATECLIP_STABLE_UPDATER_KEY } else { Join-Path $DefaultKeyRoot "tateclip-stable.key" }
-$PasswordPath = if ($env:TATECLIP_STABLE_UPDATER_PASSWORD_FILE) { $env:TATECLIP_STABLE_UPDATER_PASSWORD_FILE } else { Join-Path $DefaultKeyRoot "tateclip-stable.password.dpapi" }
+$DefaultKeyRoot = Join-Path ([Environment]::GetFolderPath('UserProfile')) ".erabiflow\updater-keys"
+$KeyPath = if ($env:ERABIFLOW_STABLE_UPDATER_KEY) { $env:ERABIFLOW_STABLE_UPDATER_KEY } else { Join-Path $DefaultKeyRoot "erabiflow-stable.key" }
+$PasswordPath = if ($env:ERABIFLOW_STABLE_UPDATER_PASSWORD_FILE) { $env:ERABIFLOW_STABLE_UPDATER_PASSWORD_FILE } else { Join-Path $DefaultKeyRoot "erabiflow-stable.password.dpapi" }
 $DaemonBin = Join-Path $RootDir "src-tauri\binaries\gemma_daemon-x86_64-pc-windows-msvc\gemma_daemon.exe"
 $WhisperDir = Join-Path $RootDir "python-sidecar\whisper-cpp"
 $TargetRoot = Join-Path $RootDir "src-tauri\target-lite"
@@ -44,19 +44,19 @@ if ($LASTEXITCODE -ne 0) { throw "Public resource cleanup failed." }
 
 $PublicConfig = Get-Content -LiteralPath (Join-Path $RootDir "src-tauri\tauri.production.conf.json") -Raw -Encoding UTF8 | ConvertFrom-Json
 $UpdaterEndpoint = [string]$PublicConfig.plugins.updater.endpoints[0]
-$env:VITE_TATECLIP_CHANNEL = "stable"
-$env:VITE_TATECLIP_UPDATER_ENABLED = if ($UpdaterEndpoint -match '^https://' -and $UpdaterEndpoint -notmatch 'example\.invalid') { "true" } else { "false" }
+$env:VITE_ERABIFLOW_CHANNEL = "stable"
+$env:VITE_ERABIFLOW_UPDATER_ENABLED = if ($UpdaterEndpoint -match '^https://' -and $UpdaterEndpoint -notmatch 'example\.invalid') { "true" } else { "false" }
 $env:TAURI_SIGNING_PRIVATE_KEY = $KeyPath
 $SecurePassword = Get-Content -LiteralPath $PasswordPath -Raw | ConvertTo-SecureString
-$Credential = [PSCredential]::new("tateclip-updater", $SecurePassword)
+$Credential = [PSCredential]::new("erabiflow-updater", $SecurePassword)
 $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = $Credential.GetNetworkCredential().Password
 $env:CARGO_TARGET_DIR = $TargetRoot
 
 & npx.cmd tauri build --ci --config "src-tauri\tauri.production.conf.json" --config "src-tauri\tauri.lite.conf.json"
-if ($LASTEXITCODE -ne 0) { throw "TateClip Public build failed." }
-$BuiltApp = Join-Path $TargetRoot "release\app.exe"
+if ($LASTEXITCODE -ne 0) { throw "ErabiFlow Public build failed." }
+$BuiltApp = Join-Path $TargetRoot "release\erabiflow.exe"
 if (-not (Test-Path -LiteralPath $BuiltApp -PathType Leaf)) {
-    throw "TateClip Public app.exe was not created: $BuiltApp"
+    throw "ErabiFlow Public executable was not created: $BuiltApp"
 }
 & node (Join-Path $RootDir "scripts\desktop_daemon_smoke.mjs") $BuiltApp
 if ($LASTEXITCODE -ne 0) { throw "Packaged desktop daemon recovery smoke failed." }

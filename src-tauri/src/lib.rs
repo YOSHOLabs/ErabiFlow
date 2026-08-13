@@ -1,4 +1,4 @@
-//! TateClip — Tauri backend
+//! ErabiFlow — Tauri backend
 //!
 //! モジュール構成:
 //!   - commands/ — Tauri コマンド (video, audio, system)

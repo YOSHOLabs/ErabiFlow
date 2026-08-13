@@ -1,7 +1,7 @@
-TateClip Source Code Terms
+ErabiFlow Source Code Terms
 Copyright (c) 2026 YOSHOLabs. All Rights Reserved.
 
-TateClip is publicly visible for portfolio, technical review, security review,
+ErabiFlow is publicly visible for portfolio, technical review, security review,
 and evaluation purposes. It is not open-source software and is not licensed
 under an OSI-approved open-source license.
 
@@ -14,11 +14,11 @@ Except where applicable law expressly permits otherwise, you may not:
 
 1. use the source code or a compiled build in production or for commercial
    purposes;
-2. copy TateClip code into another product or service;
+2. copy ErabiFlow code into another product or service;
 3. modify, publish, distribute, redistribute, sublicense, sell, or otherwise
    make the source code or a compiled build available to another person;
-4. release a derivative work or provide TateClip as a hosted service; or
-5. use TateClip names, logos, icons, or other brand assets except for truthful
+4. release a derivative work or provide ErabiFlow as a hosted service; or
+5. use ErabiFlow names, logos, icons, or other brand assets except for truthful
    reference to this repository.
 
 Making the repository public, or using GitHub features such as viewing or
@@ -31,7 +31,7 @@ src-tauri/resources/THIRD_PARTY_NOTICES.txt and
 docs/THIRD_PARTY_PROVENANCE.md. These terms do not restrict rights granted by
 those third-party licenses.
 
-Any generally distributed TateClip application may be governed by a separate
+Any generally distributed ErabiFlow application may be governed by a separate
 end-user license agreement or terms of use. Permission to use such an
 application does not grant permission to reuse or redistribute this source
 code.

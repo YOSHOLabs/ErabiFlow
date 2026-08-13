@@ -92,7 +92,7 @@ export function NarrationRecorder() {
                 try {
                     const blob = new Blob(chunksRef.current, { type: mimeType })
                     if (blob.size < 256) throw new Error("録音データが空です。少し待ってから停止してください")
-                    const path = await save({ defaultPath: `tateclip-narration-${new Date().toISOString().replace(/[:.]/g, "-")}.webm`, filters: [{ name: "Opus音声", extensions: ["webm"] }] })
+                    const path = await save({ defaultPath: `erabiflow-narration-${new Date().toISOString().replace(/[:.]/g, "-")}.webm`, filters: [{ name: "Opus音声", extensions: ["webm"] }] })
                     if (!path) return
                     await writeFile(path, new Uint8Array(await blob.arrayBuffer()))
                     const fallbackDuration = Math.max(0.1, (performance.now() - startedAtRef.current) / 1000)

@@ -1,4 +1,4 @@
-# TateClip dependency-audit tool lock for Windows x64 / Python 3.13.
+# ErabiFlow dependency-audit tool lock for Windows x64 / Python 3.13.
 # This environment is separate from the PyInstaller sidecar build environment.
 
 boolean.py==5.0 \

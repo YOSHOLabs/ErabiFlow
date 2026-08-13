@@ -65,16 +65,16 @@ pub fn synthesize_speech(
         std::fs::create_dir_all(&dir)
             .map_err(|error| format!("保存先を作成できません: {error}"))?;
         let path = dir.join(format!("speech-{}.wav", uuid::Uuid::new_v4()));
-        let script = "Add-Type -AssemblyName System.Speech; $t=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($env:TATECLIP_TTS_TEXT)); $v=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($env:TATECLIP_TTS_VOICE)); $s=New-Object System.Speech.Synthesis.SpeechSynthesizer; if($v){$s.SelectVoice($v)}; $s.Rate=[Math]::Max(-10,[Math]::Min(10,[int]$env:TATECLIP_TTS_RATE)); $s.SetOutputToWaveFile($env:TATECLIP_TTS_OUTPUT); $s.Speak($t); $s.Dispose()";
+        let script = "Add-Type -AssemblyName System.Speech; $t=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($env:ERABIFLOW_TTS_TEXT)); $v=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($env:ERABIFLOW_TTS_VOICE)); $s=New-Object System.Speech.Synthesis.SpeechSynthesizer; if($v){$s.SelectVoice($v)}; $s.Rate=[Math]::Max(-10,[Math]::Min(10,[int]$env:ERABIFLOW_TTS_RATE)); $s.SetOutputToWaveFile($env:ERABIFLOW_TTS_OUTPUT); $s.Speak($t); $s.Dispose()";
         let output = std::process::Command::new("powershell.exe")
             .args(["-NoProfile", "-NonInteractive", "-Command", script])
-            .env("TATECLIP_TTS_TEXT", STANDARD.encode(text.as_bytes()))
+            .env("ERABIFLOW_TTS_TEXT", STANDARD.encode(text.as_bytes()))
             .env(
-                "TATECLIP_TTS_VOICE",
+                "ERABIFLOW_TTS_VOICE",
                 STANDARD.encode(voice.unwrap_or_default().as_bytes()),
             )
-            .env("TATECLIP_TTS_RATE", rate.clamp(-10, 10).to_string())
-            .env("TATECLIP_TTS_OUTPUT", &path)
+            .env("ERABIFLOW_TTS_RATE", rate.clamp(-10, 10).to_string())
+            .env("ERABIFLOW_TTS_OUTPUT", &path)
             .creation_flags(0x08000000)
             .output()
             .map_err(|error| format!("音声合成を開始できません: {error}"))?;

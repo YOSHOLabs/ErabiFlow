@@ -61,7 +61,7 @@ export function createDiagnosticReport(document: VFocusDocument, generatedAt = n
     const info = document.videoInfo
 
     const lines: string[] = [
-        "TateClip Diagnostic Report",
+        "ErabiFlow Diagnostic Report",
         `generatedAt: ${generatedAt}`,
         "",
         "[Media]",

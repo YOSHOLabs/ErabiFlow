@@ -11,7 +11,7 @@ export function useDemoProject() {
         const demoVariant = new URLSearchParams(window.location.search).get("demo")
         if (!isLocalPreview || !demoVariant) return
         const portraitDemo = demoVariant === "portrait"
-        const sourcePath = portraitDemo ? "C:\\VFocusDemo\\portrait-session.mp4" : "C:\\VFocusDemo\\game-commentary.mp4"
+        const sourcePath = portraitDemo ? "C:\\ErabiFlowDemo\\portrait-session.mp4" : "C:\\ErabiFlowDemo\\game-commentary.mp4"
         const sourceVideoInfo = portraitDemo
             ? { duration: 184.2, width: 1080, height: 1920, fps: 30 }
             : { duration: 184.2, width: 1920, height: 1080, fps: 60 }
@@ -155,7 +155,7 @@ export function useDemoProject() {
         if (demoVariant === "analysis-progress") {
             store.startAnalysisJob(createAnalysisJob({
                 id: "demo-running-analysis",
-                sourcePath: "C:\\VFocusDemo\\game-commentary.mp4",
+                sourcePath: "C:\\ErabiFlowDemo\\game-commentary.mp4",
                 mode: "fast",
                 params: { demo: true },
                 now: "2026-07-20T00:00:00.000Z",
@@ -172,8 +172,8 @@ export function useDemoProject() {
                 phase: "complete",
                 progress: 100,
                 phaseMessage: "完了",
-                status: "処理完了 → game-commentary_tateclip.mp4",
-                lastOutputPath: "C:\\VFocusDemo\\game-commentary_tateclip.mp4",
+                status: "処理完了 → game-commentary_erabiflow.mp4",
+                lastOutputPath: "C:\\ErabiFlowDemo\\game-commentary_erabiflow.mp4",
                 lastError: null,
                 lastStartedAt: "2026-07-18T00:00:00.000Z",
                 lastFinishedAt: "2026-07-18T00:00:12.000Z",
@@ -213,7 +213,7 @@ export function useDemoProject() {
             useEditorStore.getState().setVolume(0.25)
             store.setBgmVolume(0.4)
             const timer = window.setTimeout(() => {
-                useDocumentStore.getState().setBgmPath("C:\\VFocusDemo\\bgm.mp3")
+                useDocumentStore.getState().setBgmPath("C:\\ErabiFlowDemo\\bgm.mp3")
             }, 50)
             return () => window.clearTimeout(timer)
         }

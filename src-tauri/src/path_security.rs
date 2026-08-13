@@ -29,7 +29,7 @@ fn managed_generated_root<R: Runtime>(app: &tauri::AppHandle<R>) -> Option<PathB
         .map(|path| path.join("generated"))
 }
 
-/// TateClip自身が生成した素材だけを、再起動後も安全に参照できるようにする。
+/// ErabiFlow自身が生成した素材だけを、再起動後も安全に参照できるようにする。
 pub fn is_managed_generated_asset_path<R: Runtime>(app: &tauri::AppHandle<R>, path: &Path) -> bool {
     let Ok(candidate) = path.canonicalize() else {
         return false;
@@ -108,7 +108,7 @@ pub fn derived_output_path(input_path: &str) -> Option<PathBuf> {
     let input = Path::new(input_path);
     input.extension()?;
     let mut file_name = input.file_stem()?.to_os_string();
-    file_name.push("_tateclip.mp4");
+    file_name.push("_erabiflow.mp4");
     Some(input.with_file_name(file_name))
 }
 
@@ -130,7 +130,7 @@ pub fn ensure_derived_output_path(input_path: &str, output_path: &str) -> Result
         .and_then(|value| value.to_str())
         .ok_or_else(|| "書き出しファイル名を確認できません".to_string())?;
     let output_extension = output.extension().and_then(|value| value.to_str());
-    let required_prefix = format!("{}_tateclip", input_stem);
+    let required_prefix = format!("{}_erabiflow", input_stem);
 
     let same_directory = input_parent == output_parent;
     let allowed_extension = output_extension.is_some_and(|extension| {
@@ -151,7 +151,7 @@ pub fn ensure_derived_output_path(input_path: &str, output_path: &str) -> Result
     {
         log::warn!("Blocked unexpected output path");
         return Err(
-            "書き出し先は素材と同じフォルダの安全なTateClip出力名にしてください".to_string(),
+            "書き出し先は素材と同じフォルダの安全なErabiFlow出力名にしてください".to_string(),
         );
     }
 
@@ -167,19 +167,19 @@ mod tests {
     fn derives_output_next_to_the_selected_input() {
         assert_eq!(
             derived_output_path(r"C:\clips\match.final.mkv"),
-            Some(PathBuf::from(r"C:\clips\match.final_tateclip.mp4")),
+            Some(PathBuf::from(r"C:\clips\match.final_erabiflow.mp4")),
         );
     }
 
     #[test]
     fn rejects_unrelated_or_extensionless_output_paths() {
         assert!(
-            ensure_derived_output_path(r"C:\clips\match.mp4", r"C:\clips\match_tateclip.mp4")
+            ensure_derived_output_path(r"C:\clips\match.mp4", r"C:\clips\match_erabiflow.mp4")
                 .is_ok()
         );
         assert!(ensure_derived_output_path(
             r"C:\clips\match.mp4",
-            r"C:\clips\match_tateclip_260717120000_01_クラッチ.mp4",
+            r"C:\clips\match_erabiflow_260717120000_01_クラッチ.mp4",
         )
         .is_ok());
         assert!(
@@ -190,7 +190,7 @@ mod tests {
                 .is_err()
         );
         assert!(
-            ensure_derived_output_path(r"C:\clips\match.mp4", r"C:\clips\match_tateclip.mov")
+            ensure_derived_output_path(r"C:\clips\match.mp4", r"C:\clips\match_erabiflow.mov")
                 .is_ok()
         );
         assert_eq!(derived_output_path(r"C:\clips\match"), None);

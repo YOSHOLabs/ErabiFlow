@@ -40,7 +40,7 @@ function document(overrides: Record<string, unknown> = {}) {
 test("診断レポートは主要な通しテスト状態を含む", () => {
     const report = createDiagnosticReport(document(), "2026-07-08T00:00:00.000Z")
 
-    assert.match(report, /TateClip Diagnostic Report/)
+    assert.match(report, /ErabiFlow Diagnostic Report/)
     assert.match(report, /inputFile: source\.mp4/)
     assert.match(report, /videoInfo: 1920x1080 \/ 1:15/)
     assert.match(report, /canExport: yes/)

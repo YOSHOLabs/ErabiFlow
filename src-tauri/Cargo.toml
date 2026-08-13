@@ -1,10 +1,10 @@
 [package]
-name = "app"
+name = "erabiflow"
 version = "0.1.0"
 description = "長時間動画の見どころ・盛り上がり・不要部分の判断を支援し、編集ソフトへ渡す区間を選ぶWindowsアプリ"
 authors = ["YOSHOLabs"]
 license-file = "../LICENSE"
-repository = "https://github.com/YOSHOLabs/TateClip"
+repository = "https://github.com/YOSHOLabs/ErabiFlow"
 edition = "2021"
 rust-version = "1.93.0"
 publish = false
@@ -12,7 +12,7 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "app_lib"
+name = "erabiflow_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

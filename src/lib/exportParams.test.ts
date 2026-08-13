@@ -231,7 +231,7 @@ test("Creator一括書き出しは候補ごとに独立したRenderSpecを作る
     assert.deepEqual(params.subtitle?.segments.map(({ text, startTime, endTime }) => ({ text, startTime, endTime })), [
         { text: "ラスト", startTime: 5, endTime: 8 },
     ])
-    assert.equal(params.outputPath, "C:\\videos\\source_tateclip_260717120000_02_Bサイト_ACE.mp4")
+    assert.equal(params.outputPath, "C:\\videos\\source_erabiflow_260717120000_02_Bサイト_ACE.mp4")
 })
 
 test("クリップ固有の速度・変形・音量を書き出しパラメータへ渡す", () => {
@@ -272,23 +272,23 @@ test("Creator出力名は危険文字を除去し、素材形式に関係なくM
     assert.equal(sanitizeOutputFilePart('  A/B:*? サイト.  '), "A_B_サイト")
     assert.equal(
         buildCreatorBatchOutputPath("D:\\録画\\match.mkv", 0, 'A/B:*? サイト', "run:01"),
-        "D:\\録画\\match_tateclip_run_01_01_A_B_サイト.mp4",
+        "D:\\録画\\match_erabiflow_run_01_01_A_B_サイト.mp4",
     )
     assert.equal(
         buildCreatorBatchOutputPath("D:\\録画\\VALORANT match.mkv", 1, "ACE", "run01"),
-        "D:\\録画\\VALORANT match_tateclip_run01_02_ACE.mp4",
+        "D:\\録画\\VALORANT match_erabiflow_run01_02_ACE.mp4",
     )
 
     const params = buildExportParams(document({ inputPath: "C:\\videos\\source.mkv" }))
-    assert.equal(params.outputPath, "C:\\videos\\source_tateclip_roughcut.mp4")
+    assert.equal(params.outputPath, "C:\\videos\\source_erabiflow_roughcut.mp4")
 })
 
 test("MOV・GIF・PNG連番と解像度・FPS・H.265設定をRustへ渡す", () => {
     const mov = buildExportParams(document({ inputPath: "C:\\videos\\source.mkv" }), null, { format: "mov", codec: "h265", width: 720, height: 1280, fps: 60, bitrateKbps: 8000 })
-    assert.equal(mov.outputPath, "C:\\videos\\source_tateclip_roughcut.mov")
+    assert.equal(mov.outputPath, "C:\\videos\\source_erabiflow_roughcut.mov")
     assert.deepEqual([mov.exportFormat, mov.videoCodec, mov.outputWidth, mov.outputHeight, mov.outputFps, mov.videoBitrateKbps], ["mov", "h265", 720, 1280, 60, 8000])
     const png = buildExportParams(document({ inputPath: "C:\\videos\\source.mp4" }), null, { format: "png_sequence", codec: "h264", width: 1080, height: 1920, fps: 30, bitrateKbps: 12000 })
-    assert.equal(png.outputPath, "C:\\videos\\source_tateclip_roughcut_%05d.png")
+    assert.equal(png.outputPath, "C:\\videos\\source_erabiflow_roughcut_%05d.png")
 })
 
 test("sourceレイアウトは横・縦の元画角とFPSを既定で維持し装飾を焼き込まない", () => {

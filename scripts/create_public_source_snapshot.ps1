@@ -116,7 +116,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "git add failed." }
     & git -C $Destination commit -m "Initial public source release"
     if ($LASTEXITCODE -ne 0) { throw "git commit failed." }
-    & git -C $Destination remote add origin "https://github.com/YOSHOLabs/TateClip.git"
+    & git -C $Destination remote add origin "https://github.com/YOSHOLabs/ErabiFlow.git"
     if ($LASTEXITCODE -ne 0) { throw "git remote add failed." }
 
     $Commit = (& git -C $Destination rev-parse HEAD).Trim()

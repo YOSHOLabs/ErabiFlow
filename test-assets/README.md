@@ -1,4 +1,4 @@
-# TateClip local test videos
+# ErabiFlow local test videos
 
 このフォルダは、実メディア動作確認用のローカル動画置き場です。
 

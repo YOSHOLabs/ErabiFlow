@@ -1,7 +1,7 @@
-TateClip
+ErabiFlow
 Copyright (c) 2026 YOSHOLabs. All Rights Reserved.
 
-The TateClip source code is source-visible but is not open-source software.
+The ErabiFlow source code is source-visible but is not open-source software.
 See LICENSE for the limited permissions and restrictions that apply.
 
 Third-party software, models, and other components retain their respective
@@ -11,8 +11,8 @@ copyrights and licenses. See:
 - docs/THIRD_PARTY_PROVENANCE.md
 - src-tauri/resources/licenses/
 
-The TateClip name, logo, and application icons are not licensed for use in a
+The ErabiFlow name, logo, and application icons are not licensed for use in a
 modified or redistributed product. See TRADEMARKS.md.
 
-Terms governing a generally distributed TateClip application may be supplied
+Terms governing a generally distributed ErabiFlow application may be supplied
 separately from these source-code terms.

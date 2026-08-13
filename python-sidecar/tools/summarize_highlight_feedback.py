@@ -44,7 +44,7 @@ def write_output(path: Path, rendered: str) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Summarize TateClip local highlight feedback")
+    parser = argparse.ArgumentParser(description="Summarize ErabiFlow local highlight feedback")
     parser.add_argument("events", nargs="+", type=Path, help="events-v1 JSONL file(s)")
     parser.add_argument("--output", type=Path, help="optional summary JSON destination")
     args = parser.parse_args()

@@ -25,7 +25,7 @@ function familyKey(path: string) {
         hash ^= path.charCodeAt(index)
         hash = Math.imul(hash, 16777619)
     }
-    return `TateClip_${(hash >>> 0).toString(16)}`
+    return `ErabiFlow_${(hash >>> 0).toString(16)}`
 }
 
 function loadFont(path: string) {
@@ -55,7 +55,7 @@ function browserFallback(reference: string) {
 /** Rust書き出しと同じ字形対応判定を使い、実ファイルをCanvasへ読み込む。 */
 export function useResolvedFont(reference: string, text: string): ResolvedPreviewFont {
     const glyphSample = useMemo(() => {
-        const unique = Array.from(new Set(Array.from(text || "TateClip")))
+        const unique = Array.from(new Set(Array.from(text || "ErabiFlow")))
         return unique.slice(0, 2048).join("")
     }, [text])
     const [state, setState] = useState<ResolvedPreviewFont>({

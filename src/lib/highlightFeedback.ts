@@ -18,9 +18,9 @@ export {
     shouldRecordHighlightShown,
 } from "./highlightFeedbackEvent.ts"
 
-const ENABLED_KEY = "tateclip.highlightFeedback.enabled"
-export const HIGHLIGHT_FEEDBACK_CHANGED_EVENT = "tateclip:highlight-feedback-changed"
-export const HIGHLIGHT_FEEDBACK_RESET_EVENT = "tateclip:highlight-feedback-reset"
+const ENABLED_KEY = "erabiflow.highlightFeedback.enabled"
+export const HIGHLIGHT_FEEDBACK_CHANGED_EVENT = "erabiflow:highlight-feedback-changed"
+export const HIGHLIGHT_FEEDBACK_RESET_EVENT = "erabiflow:highlight-feedback-reset"
 
 export interface HighlightFeedbackStatus {
     bytes: number

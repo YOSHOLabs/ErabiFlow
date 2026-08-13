@@ -1,5 +1,5 @@
 /**
- * TateClipの商品プランと機能権限。
+ * ErabiFlowの商品プランと機能権限。
  *
  * 編集ドキュメントとは分離し、プロジェクトファイルへは保存しない。
  * 将来はライセンスサーバーが返す署名済み権限をこのモデルへ変換する。
@@ -35,14 +35,14 @@ const CREATOR_CAPABILITIES = [
 export const PRODUCT_PLANS: Record<ProductPlan, ProductPlanDefinition> = {
     free: {
         id: "free",
-        label: "TateClip Free",
+        label: "ErabiFlow Free",
         shortLabel: "FREE",
         description: "見どころを判断し、ラフカットを受け渡す基本プラン",
         capabilities: [],
     },
     creator: {
         id: "creator",
-        label: "TateClip Creator",
+        label: "ErabiFlow Creator",
         shortLabel: "CREATOR",
         description: "より多くの候補から長時間素材を判断するプラン",
         capabilities: CREATOR_CAPABILITIES,

@@ -1,4 +1,4 @@
-# TateClip Python sidecar build lock for Windows x64 / Python 3.13.
+# ErabiFlow Python sidecar build lock for Windows x64 / Python 3.13.
 # Install with --require-hashes so a clean clone cannot silently resolve a
 # different PyInstaller toolchain.
 

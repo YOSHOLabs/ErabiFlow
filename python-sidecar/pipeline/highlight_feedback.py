@@ -1,4 +1,4 @@
-"""Privacy-preserving aggregation for TateClip's local highlight feedback JSONL."""
+"""Privacy-preserving aggregation for ErabiFlow's local highlight feedback JSONL."""
 
 from __future__ import annotations
 

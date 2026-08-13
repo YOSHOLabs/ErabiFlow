@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "TateClip Dev",
+  "productName": "ErabiFlow Dev",
   "version": "0.1.0",
-  "identifier": "com.yosholabs.tateclip.dev",
+  "identifier": "com.yosholabs.erabiflow.dev",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "TateClip",
+        "title": "ErabiFlow",
         "width": 1440,
         "height": 900,
         "minWidth": 1180,

@@ -71,8 +71,8 @@ export function CreatorUpgradeModal({
                     <p className="border-l-2 border-amber-300 pl-3 text-[11px] font-medium text-amber-200">Creatorプラン</p>
                     <h2 className="mt-3 text-lg font-semibold text-zinc-50">
                         {plan === "creator"
-                            ? "TateClip Creator 有効"
-                            : featureName ? `「${featureName}」はCreator機能です` : "TateClip Creator"}
+                            ? "ErabiFlow Creator 有効"
+                            : featureName ? `「${featureName}」はCreator機能です` : "ErabiFlow Creator"}
                     </h2>
                     <p className="mt-1.5 text-[11px] leading-relaxed text-zinc-500">
                         長時間素材からより多くの見どころ候補を確認し、KEEP／没の判断を短縮するためのプランです。

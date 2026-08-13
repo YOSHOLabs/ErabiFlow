@@ -34,7 +34,7 @@ fn validate_project_json(project_json: &str) -> Result<(), String> {
         .get("document")
         .is_some_and(|document| document.is_object());
     if !valid {
-        return Err("TateClipプロジェクトとして保存できないデータです".to_string());
+        return Err("ErabiFlowプロジェクトとして保存できないデータです".to_string());
     }
     Ok(())
 }
@@ -139,7 +139,7 @@ mod tests {
     #[test]
     fn project_save_replaces_an_existing_file_after_json_validation() {
         let directory =
-            std::env::temp_dir().join(format!("tateclip-project-save-{}", uuid::Uuid::new_v4()));
+            std::env::temp_dir().join(format!("erabiflow-project-save-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&directory).unwrap();
         let path = directory.join("edit.vfocus");
         std::fs::write(&path, b"old project").unwrap();
@@ -160,7 +160,7 @@ mod tests {
     #[test]
     fn invalid_project_data_never_overwrites_the_existing_file() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-project-save-invalid-{}",
+            "erabiflow-project-save-invalid-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&directory).unwrap();
@@ -175,7 +175,7 @@ mod tests {
     #[test]
     fn handoff_save_atomically_replaces_supported_text_files() {
         let directory =
-            std::env::temp_dir().join(format!("tateclip-handoff-save-{}", uuid::Uuid::new_v4()));
+            std::env::temp_dir().join(format!("erabiflow-handoff-save-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&directory).unwrap();
         let path = directory.join("roughcut.edl");
         std::fs::write(&path, b"old").unwrap();

@@ -37,7 +37,7 @@ pub(super) fn media_proxy_file_name(
         .hash(&mut hasher);
     bytes.hash(&mut hasher);
     modified_millis.hash(&mut hasher);
-    format!("tateclip-proxy-{:016x}.mp4", hasher.finish())
+    format!("erabiflow-proxy-{:016x}.mp4", hasher.finish())
 }
 
 fn media_proxy_path(app: &tauri::AppHandle, input_path: &Path) -> Result<PathBuf, String> {
@@ -65,9 +65,9 @@ fn ensure_managed_proxy_path(app: &tauri::AppHandle, proxy_path: &str) -> Result
     let safe_name = candidate
         .file_name()
         .and_then(|value| value.to_str())
-        .is_some_and(|name| name.starts_with("tateclip-proxy-") && name.ends_with(".mp4"));
+        .is_some_and(|name| name.starts_with("erabiflow-proxy-") && name.ends_with(".mp4"));
     if !candidate.is_absolute() || candidate.parent() != Some(directory.as_path()) || !safe_name {
-        return Err("TateClipが管理するプロキシだけを削除できます".to_string());
+        return Err("ErabiFlowが管理するプロキシだけを削除できます".to_string());
     }
     Ok(candidate)
 }
@@ -149,7 +149,7 @@ pub async fn generate_media_proxy(
         proxy_path
             .file_stem()
             .and_then(|value| value.to_str())
-            .unwrap_or("tateclip-proxy")
+            .unwrap_or("erabiflow-proxy")
     ));
     let _ = std::fs::remove_file(&temp_path);
 

@@ -14,3 +14,7 @@
 *.wav binary
 *.tflite binary
 *.wasm binary
+
+# Keep upstream MediaPipe loader files byte-for-byte; generated whitespace is not project style.
+public/mediapipe-wasm/vision_wasm_*_internal.js -whitespace
+public/mediapipe-wasm/vision_wasm_internal.js -whitespace

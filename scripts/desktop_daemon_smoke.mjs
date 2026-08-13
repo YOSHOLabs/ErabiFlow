@@ -10,7 +10,7 @@ import { chromium } from "@playwright/test"
 
 const execFileAsync = promisify(execFile)
 const rootDir = path.resolve(import.meta.dirname, "..")
-const defaultAppPath = path.join(rootDir, "src-tauri", "target-lite", "release", "app.exe")
+const defaultAppPath = path.join(rootDir, "src-tauri", "target-lite", "release", "erabiflow.exe")
 const appPath = path.resolve(process.argv[2] ?? defaultAppPath)
 const appDir = path.dirname(appPath)
 const reportPath = path.join(rootDir, "release", "desktop-daemon-smoke.local.json")
@@ -118,7 +118,7 @@ try {
     await waitForCdp(port)
     browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`)
     const page = browser.contexts().flatMap((context) => context.pages())[0]
-    if (!page) throw new Error("TateClip WebView pageが見つかりません")
+    if (!page) throw new Error("ErabiFlow WebView pageが見つかりません")
     await page.waitForFunction(() => typeof window.__TAURI_INTERNALS__?.invoke === "function", null, { timeout: 20_000 })
 
     const firstHealth = await page.evaluate(() => window.__TAURI_INTERNALS__.invoke("check_daemon_health"))

@@ -1,5 +1,5 @@
 """
-gemma_daemon.py — TateClip ローカル解析常駐デーモン
+gemma_daemon.py — ErabiFlow ローカル解析常駐デーモン
 
 起動時にモデルをロードし、stdin から JSON Lines コマンドを受信して
 stdout に JSON Lines で応答を返す常駐プロセス。
@@ -80,9 +80,9 @@ def _analysis_cache_root() -> str:
         root = configured
     elif os.name == "nt":
         base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
-        root = os.path.join(base, "TateClip", "analysis-cache")
+        root = os.path.join(base, "ErabiFlow", "analysis-cache")
     else:
-        root = os.path.join(os.path.expanduser("~"), ".cache", "tateclip", "analysis-cache")
+        root = os.path.join(os.path.expanduser("~"), ".cache", "erabiflow", "analysis-cache")
 
     os.makedirs(root, exist_ok=True)
     return root
@@ -246,7 +246,7 @@ def _run_analyze_highlights(req_id: str, params: dict, cancel_event: threading.E
     """
     ゲーム実況ハイライト分析 — openshortsパイプライン統合
 
-    TateClipの候補レビューUI用にAgentHighlight[]形式で結果を返す。
+    ErabiFlowの候補レビューUI用にAgentHighlight[]形式で結果を返す。
     """
     import time as _time
     t_start = _time.time()

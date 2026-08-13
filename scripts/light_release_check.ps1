@@ -7,7 +7,7 @@ $MsiDir = Join-Path $ReleaseDir "bundle\msi"
 $Msi = Get-ChildItem -LiteralPath $MsiDir -Filter "*_light.msi" -File -ErrorAction SilentlyContinue |
     Sort-Object LastWriteTimeUtc -Descending |
     Select-Object -First 1
-$App = Get-Item -LiteralPath (Join-Path $ReleaseDir "app.exe") -ErrorAction SilentlyContinue
+$App = Get-Item -LiteralPath (Join-Path $ReleaseDir "erabiflow.exe") -ErrorAction SilentlyContinue
 $Wix = Join-Path $ReleaseDir "wix\x64\main.wxs"
 $WhisperStage = Join-Path $ReleaseDir "whisper-cpp"
 $ExpectedRuntime = @(

@@ -26,7 +26,7 @@ def _load_ranges(path: Path, keys: tuple[str, ...]) -> list:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="TateClipハイライト候補の時間区間評価")
+    parser = argparse.ArgumentParser(description="ErabiFlowハイライト候補の時間区間評価")
     parser.add_argument("--predictions", required=True, type=Path)
     parser.add_argument("--references", required=True, type=Path)
     parser.add_argument("--iou", type=float, default=0.30)

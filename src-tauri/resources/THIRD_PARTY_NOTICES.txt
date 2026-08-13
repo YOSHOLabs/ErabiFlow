@@ -1,13 +1,13 @@
-TateClip Third-Party Notices
+ErabiFlow Third-Party Notices
 ============================
 
 FFmpeg
 ------
-TateClip invokes FFmpeg as a separate executable for media decoding, analysis,
+ErabiFlow invokes FFmpeg as a separate executable for media decoding, analysis,
 and export. The lightweight application build downloads an unmodified LGPL build
 directly from the fixed BtbN/FFmpeg-Builds GitHub release recorded below,
 then verifies both the release archive and extracted executable with SHA-256.
-TateClip does not claim ownership of FFmpeg.
+ErabiFlow does not claim ownership of FFmpeg.
 
 FFmpeg project and license information:
 - https://ffmpeg.org/
@@ -17,7 +17,7 @@ FFmpeg project and license information:
 - https://github.com/FFmpeg/FFmpeg/commit/9a01c1cb6a4cf87529fe9898b66ec55c5b032639
 
 Exact artifact and source hashes are recorded in release/ffmpeg-source.json in
-the TateClip source tree.
+the ErabiFlow source tree.
 
 whisper.cpp / ggml runtime
 --------------------------
@@ -103,14 +103,14 @@ MediaPipe Tasks Vision and MediaPipe models
 -------------------------------------------
 Copyright 2019 The MediaPipe Authors
 
-TateClip vendors the WebAssembly runtime from @mediapipe/tasks-vision 0.10.32
+ErabiFlow vendors the WebAssembly runtime from @mediapipe/tasks-vision 0.10.35
 and the official blaze_face_short_range and magic_touch TFLite models. These
 components are provided under the Apache License, Version 2.0. A complete copy
 is included at licenses/Apache-2.0.txt.
 
 Sources:
 - https://github.com/google-ai-edge/mediapipe
-- https://www.npmjs.com/package/@mediapipe/tasks-vision/v/0.10.32
+- https://www.npmjs.com/package/@mediapipe/tasks-vision/v/0.10.35
 - https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite
 - https://storage.googleapis.com/mediapipe-models/interactive_segmenter/magic_touch/float32/1/magic_touch.tflite
 
@@ -142,16 +142,16 @@ docs/THIRD_PARTY_PROVENANCE.md. Packaged builds also include the generated
 DEPENDENCY_LICENSES.generated.txt inventory and the license/notice texts found
 in the exact installed Windows dependency graph.
 
-TateClip source code
+ErabiFlow source code
 --------------------
-The TateClip source code itself is Copyright (c) 2026 YOSHOLabs. All Rights
-Reserved. It is source-visible but is not open-source software. The TateClip
+The ErabiFlow source code itself is Copyright (c) 2026 YOSHOLabs. All Rights
+Reserved. It is source-visible but is not open-source software. The ErabiFlow
 source-code terms do not replace or restrict the licenses granted by the
 third-party copyright holders identified above.
 
-The TateClip brand master and category icon images include C2PA Content
+The ErabiFlow brand master and category icon images include C2PA Content
 Credentials identifying OpenAI Media Service or Google Generative AI as their
-generation source. These are TateClip-selected generated assets, not bundled
+generation source. These are ErabiFlow-selected generated assets, not bundled
 AI models or third-party stock libraries. Their provenance, hashes, provider
 terms, non-uniqueness caveat, and trademark treatment are recorded in
 docs/THIRD_PARTY_PROVENANCE.md and TRADEMARKS.md.

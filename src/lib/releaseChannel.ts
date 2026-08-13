@@ -5,8 +5,8 @@ function readChannel(value: string | undefined): ReleaseChannel {
     return "dev"
 }
 
-export const releaseChannel = readChannel(import.meta.env.VITE_TATECLIP_CHANNEL)
-export const updaterEnabled = import.meta.env.VITE_TATECLIP_UPDATER_ENABLED === "true"
+export const releaseChannel = readChannel(import.meta.env.VITE_ERABIFLOW_CHANNEL)
+export const updaterEnabled = import.meta.env.VITE_ERABIFLOW_UPDATER_ENABLED === "true"
 
 export const releaseChannelLabel: Record<ReleaseChannel, string> = {
     dev: "Dev",

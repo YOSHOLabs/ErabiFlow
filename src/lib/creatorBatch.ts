@@ -39,7 +39,7 @@ export function buildCreatorBatchOutputPath(
     const base = lastDot > 0 ? fileName.slice(0, lastDot) : fileName
     const safeLabel = sanitizeOutputFilePart(label)
     const safeRunId = sanitizeOutputFilePart(runId, "batch")
-    return `${directory}${base}_tateclip_${safeRunId}_${String(index + 1).padStart(2, "0")}_${safeLabel}.mp4`
+    return `${directory}${base}_erabiflow_${safeRunId}_${String(index + 1).padStart(2, "0")}_${safeLabel}.mp4`
 }
 
 function remapSeSlots(document: VFocusDocument, item: CreatorBatchClip): SeSlot[] {

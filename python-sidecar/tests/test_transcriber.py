@@ -39,7 +39,7 @@ def write_wav_with_metadata(path: Path, pcm_data: bytes, sample_rate: int = 16_0
 class TranscriberWavTests(unittest.TestCase):
     def test_downloaded_model_path_override_is_used(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            model_path = Path(temp_dir) / "tateclip-models" / "ggml-large-v3-turbo.bin"
+            model_path = Path(temp_dir) / "erabiflow-models" / "ggml-large-v3-turbo.bin"
             model_path.parent.mkdir()
             model_path.touch()
             with patch.dict(os.environ, {"VFOCUS_WHISPER_MODEL_PATH": str(model_path)}):

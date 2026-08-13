@@ -549,7 +549,7 @@ class LocalAnalysisEngine:
 # メイン エントリーポイント
 # ==============================================================
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="TateClip Local Analysis Engine")
+    parser = argparse.ArgumentParser(description="ErabiFlow Local Analysis Engine")
     parser.add_argument("command", choices=["init", "plan_edit"])
     parser.add_argument("--input", type=str)
     parser.add_argument("--video", type=str, default="")

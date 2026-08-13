@@ -14,7 +14,7 @@ export interface RoughCutEntry {
 }
 
 export interface RoughCutManifest {
-    format: "tateclip-rough-cut"
+    format: "erabiflow-rough-cut"
     version: 1
     source: {
         path: string
@@ -108,7 +108,7 @@ export function buildRoughCutManifest(document: RoughCutDocument): RoughCutManif
     const fileName = document.inputPath.split(/[\\/]/).pop() || document.inputPath
 
     return {
-        format: "tateclip-rough-cut",
+        format: "erabiflow-rough-cut",
         version: 1,
         source: {
             path: document.inputPath,
@@ -171,7 +171,7 @@ function toTimecode(seconds: number, fps: number) {
 }
 
 export function roughCutManifestToEdl(manifest: RoughCutManifest) {
-    const title = manifest.source.fileName.replace(/\.[^.]+$/, "").slice(0, 64) || "TATECLIP_ROUGH_CUT"
+    const title = manifest.source.fileName.replace(/\.[^.]+$/, "").slice(0, 64) || "ERABIFLOW_ROUGH_CUT"
     const lines = [`TITLE: ${title}`, "FCM: NON-DROP FRAME", ""]
     for (const entry of manifest.entries) {
         const event = String(entry.index).padStart(3, "0")

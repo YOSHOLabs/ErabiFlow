@@ -58,10 +58,10 @@
 /release/public-site-manifest.local.json
 /release/V-Focus-site-*.zip
 /release/V-Focus-clean-pc-test-*.zip
-/release/TateClip-clean-pc-test-*.zip
-/release/tateclip-*-site-*.tar.gz
-/release/TateClip-Beta-*-manifest.json
-/release/TateClip-Beta-*-manifest.md
+/release/ErabiFlow-clean-pc-test-*.zip
+/release/erabiflow-*-site-*.tar.gz
+/release/ErabiFlow-Beta-*-manifest.json
+/release/ErabiFlow-Beta-*-manifest.md
 /release/beta-*
 /release/channels.json
 /release/distribution.json
@@ -132,4 +132,4 @@ yarn-error.log*
 *.vflicense
 *.vfocus.recovery*
 *.feedback.jsonl
-*_tateclip_roughcut.*
+*_erabiflow_roughcut.*

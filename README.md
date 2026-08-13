@@ -1,8 +1,8 @@
-# TateClip
+# ErabiFlow by YOSHOLabs
 
-TateClipは、長時間動画を解析し、見どころ・盛り上がり・不要部分の判断を支援するWindows向けの動画解析・編集支援ツールです。横動画と縦動画の両方を扱い、編集者自身が必要な区間を選択して、任意尺のラフカットを次の動画編集ソフトへ渡せます。
+ErabiFlowは、長時間動画を解析し、見どころ・盛り上がり・不要部分の判断を支援するWindows向けの動画解析・編集支援ツールです。横動画と縦動画の両方を扱い、編集者自身が必要な区間を選択して、任意尺のラフカットを次の動画編集ソフトへ渡せます。
 
-TateClipは動画編集ソフトでも、AIが完成動画を完全自動編集するアプリでもありません。AIは候補と判断根拠を提示し、人がKEEP／没、IN／OUT、順番を決めます。演出、カラー、合成、最終仕上げはPremiere ProやDaVinci Resolveなどへ任せます。
+ErabiFlowは動画編集ソフトでも、AIが完成動画を完全自動編集するアプリでもありません。AIは候補と判断根拠を提示し、人がKEEP／没、IN／OUT、順番を決めます。演出、カラー、合成、最終仕上げはPremiere ProやDaVinci Resolveなどへ任せます。
 
 ## 主なワークフロー
 
@@ -44,8 +44,8 @@ TateClipは動画編集ソフトでも、AIが完成動画を完全自動編集�
 - Microsoft Edge WebView2 Runtime
 
 ```powershell
-git clone https://github.com/YOSHOLabs/TateClip.git
-cd TateClip
+git clone https://github.com/YOSHOLabs/ErabiFlow.git
+cd ErabiFlow
 npm run setup:dev
 npm run tauri dev
 ```
@@ -116,9 +116,9 @@ docs/                   アーキテクチャ、製品方針、provenance
 
 Copyright © 2026 YOSHOLabs. All Rights Reserved.
 
-このPublic repositoryはポートフォリオ、技術確認、セキュリティレビュー、評価のためにソースを閲覧可能にするものです。TateClip本体はOSSではなく、MIT／GPL／Apache等では提供していません。限定されたローカル評価権と禁止事項は[LICENSE](LICENSE)を確認してください。第三者コンポーネントには各元ライセンスが別に適用されます。
+このPublic repositoryはポートフォリオ、技術確認、セキュリティレビュー、評価のためにソースを閲覧可能にするものです。ErabiFlow本体はOSSではなく、MIT／GPL／Apache等では提供していません。限定されたローカル評価権と禁止事項は[LICENSE](LICENSE)を確認してください。第三者コンポーネントには各元ライセンスが別に適用されます。
 
-将来一般配布するTateClipアプリの利用条件やEULAは、GitHub上のソースコードの権利条件とは分離して整備します。
+将来一般配布するErabiFlowアプリの利用条件やEULAは、GitHub上のソースコードの権利条件とは分離して整備します。
 
 ## セキュリティとコントリビューション
 

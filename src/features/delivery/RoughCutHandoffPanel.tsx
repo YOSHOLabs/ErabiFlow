@@ -28,7 +28,7 @@ export function RoughCutHandoffPanel() {
                 : format === "edl"
                     ? roughCutManifestToEdl(manifest)
                     : srt
-        const fileName = `${sourceStem}_tateclip_roughcut.${format}`
+        const fileName = `${sourceStem}_erabiflow_roughcut.${format}`
         try {
             if (isTauriEnv()) {
                 const path = await save({

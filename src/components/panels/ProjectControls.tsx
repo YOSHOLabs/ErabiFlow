@@ -59,7 +59,7 @@ export function ProjectControls() {
         setIsChoosingSavePath(true)
         try {
             return await save({
-                filters: [{ name: "TateClip Project", extensions: ["vfocus"] }],
+                filters: [{ name: "ErabiFlow Project", extensions: ["vfocus"] }],
                 defaultPath,
             })
         } finally {
@@ -102,7 +102,7 @@ export function ProjectControls() {
         }
         try {
             const selected = await open({
-                filters: [{ name: "TateClip Project", extensions: ["vfocus"] }],
+                filters: [{ name: "ErabiFlow Project", extensions: ["vfocus"] }],
                 multiple: false,
             })
             if (!selected) return

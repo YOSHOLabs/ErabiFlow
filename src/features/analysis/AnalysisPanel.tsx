@@ -139,7 +139,7 @@ function formatTime(iso: string | null) {
 function createJobDiagnosticText(job: AnalysisJob) {
     const currentStage = job.stages.find((stage) => stage.id === job.currentStageId)
     return [
-        "TateClip Analysis Job",
+        "ErabiFlow Analysis Job",
         `jobId: ${job.id}`,
         `mode: ${job.mode}`,
         `status: ${job.status}`,

@@ -133,7 +133,7 @@ export function SubtitlePanel() {
 
     const handleExportSrt = async () => {
         try {
-            const path = await save({ defaultPath: "tateclip-subtitles.srt", filters: [{ name: "SubRip字幕", extensions: ["srt"] }] })
+            const path = await save({ defaultPath: "erabiflow-subtitles.srt", filters: [{ name: "SubRip字幕", extensions: ["srt"] }] })
             if (!path) return
             await writeTextFile(path, createSrt(subtitles))
             setErrorMsg("")

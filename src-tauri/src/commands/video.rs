@@ -168,7 +168,7 @@ impl OutputPathLock {
         let mut digest = Sha256::new();
         digest.update(normalized_identity.as_bytes());
         let key = format!("{:x}", digest.finalize());
-        let path = canonical_parent.join(format!(".tateclip-export-{key}.lock"));
+        let path = canonical_parent.join(format!(".erabiflow-export-{key}.lock"));
         let mut options = OpenOptions::new();
         options.read(true).write(true).create(true);
         #[cfg(windows)]
@@ -177,7 +177,7 @@ impl OutputPathLock {
         options.create_new(true);
         let mut file = options.open(&path).map_err(|error| {
             format!(
-                "同じ書き出し先が別のTateClipで使用中です。完了後にもう一度お試しください: {error}"
+                "同じ書き出し先が別のErabiFlowで使用中です。完了後にもう一度お試しください: {error}"
             )
         })?;
         let _ = file.set_len(0);
@@ -219,7 +219,7 @@ struct PngTransactionJournal {
 }
 
 fn png_backup_prefix(lock_key: &str) -> String {
-    format!(".tateclip-png-backup-{lock_key}-")
+    format!(".erabiflow-png-backup-{lock_key}-")
 }
 
 fn write_png_transaction_state(
@@ -489,7 +489,7 @@ impl RenderOutputTransaction {
         let id = uuid::Uuid::new_v4();
 
         let (staged_output, stage_directory) = if params.export_format == "png_sequence" {
-            let directory = parent.join(format!(".tateclip-render-{id}"));
+            let directory = parent.join(format!(".erabiflow-render-{id}"));
             std::fs::create_dir(&directory)
                 .map_err(|error| format!("PNG連番の一時フォルダーを作成できません: {error}"))?;
             (directory.join(file_name), Some(directory))
@@ -503,7 +503,7 @@ impl RenderOutputTransaction {
                 .and_then(|value| value.to_str())
                 .ok_or_else(|| "書き出しファイル名を確認できません".to_string())?;
             (
-                parent.join(format!(".{stem}.tateclip-render-{id}.partial.{extension}")),
+                parent.join(format!(".{stem}.erabiflow-render-{id}.partial.{extension}")),
                 None,
             )
         };
@@ -2484,8 +2484,10 @@ mod tests {
     }
 
     fn process_params_json() -> serde_json::Value {
-        let output_path =
-            std::env::temp_dir().join(format!("tateclip-test-output-{}.mp4", uuid::Uuid::new_v4()));
+        let output_path = std::env::temp_dir().join(format!(
+            "erabiflow-test-output-{}.mp4",
+            uuid::Uuid::new_v4()
+        ));
         json!({
             "inputPath": "C:\\videos\\source.mp4",
             "outputPath": output_path.to_string_lossy(),
@@ -2676,17 +2678,17 @@ mod tests {
     #[test]
     fn smoke_all_layouts_with_silent_video_and_audio_when_configured() {
         let (Some(video_path), Some(audio_path)) = (
-            std::env::var_os("TATECLIP_LAYOUT_SMOKE_VIDEO"),
-            std::env::var_os("TATECLIP_LAYOUT_SMOKE_AUDIO"),
+            std::env::var_os("ERABIFLOW_LAYOUT_SMOKE_VIDEO"),
+            std::env::var_os("ERABIFLOW_LAYOUT_SMOKE_AUDIO"),
         ) else {
             return;
         };
         let ffmpeg_path =
-            std::env::var_os("TATECLIP_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
+            std::env::var_os("ERABIFLOW_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
 
         for layout in ["commentary", "portrait", "stage"] {
             let output_path = std::env::temp_dir().join(format!(
-                "tateclip-layout-smoke-{layout}-{}.mp4",
+                "erabiflow-layout-smoke-{layout}-{}.mp4",
                 uuid::Uuid::new_v4()
             ));
             let mut value = process_params_json();
@@ -2780,7 +2782,7 @@ mod tests {
     #[test]
     fn large_rough_cut_uses_a_filter_script_instead_of_the_windows_command_line() {
         let output_path =
-            std::env::temp_dir().join(format!("tateclip-many-keeps-{}.mp4", uuid::Uuid::new_v4()));
+            std::env::temp_dir().join(format!("erabiflow-many-keeps-{}.mp4", uuid::Uuid::new_v4()));
         let mut value = process_params_json();
         value["renderSpec"] = serde_json::Value::Null;
         value["layout"] = json!("source");
@@ -2809,13 +2811,13 @@ mod tests {
 
     #[test]
     fn smoke_source_process_args_with_real_video_when_configured() {
-        let Some(video_path) = std::env::var_os("TATECLIP_ROUGH_CUT_SMOKE_VIDEO") else {
+        let Some(video_path) = std::env::var_os("ERABIFLOW_ROUGH_CUT_SMOKE_VIDEO") else {
             return;
         };
         let ffmpeg_path =
-            std::env::var_os("TATECLIP_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
+            std::env::var_os("ERABIFLOW_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
         let output_path = std::env::temp_dir().join(format!(
-            "tateclip-process-rough-cut-smoke-{}.mp4",
+            "erabiflow-process-rough-cut-smoke-{}.mp4",
             uuid::Uuid::new_v4()
         ));
         let mut value = process_params_json();
@@ -2872,7 +2874,7 @@ mod tests {
 
         assert_eq!(first, same);
         assert_ne!(first, changed);
-        assert!(first.starts_with("tateclip-proxy-"));
+        assert!(first.starts_with("erabiflow-proxy-"));
         assert!(first.ends_with(".mp4"));
     }
 
@@ -2919,7 +2921,7 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
     #[test]
     fn png_sequence_validation_and_cleanup_cover_the_whole_exact_sequence() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-png-sequence-test-{}",
+            "erabiflow-png-sequence-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&directory).unwrap();
@@ -2962,11 +2964,11 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
     #[test]
     fn failed_staged_render_preserves_previous_successful_output() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-render-transaction-test-{}",
+            "erabiflow-render-transaction-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&directory).unwrap();
-        let output = directory.join("clip_tateclip.mp4");
+        let output = directory.join("clip_erabiflow.mp4");
         std::fs::write(&output, b"previous-success").unwrap();
         let mut params: ProcessParams = serde_json::from_value(process_params_json()).unwrap();
         params.output_path = output.to_string_lossy().into_owned();
@@ -2989,15 +2991,15 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
     #[test]
     fn committed_png_sequence_removes_old_tail_without_touching_unrelated_files() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-png-transaction-test-{}",
+            "erabiflow-png-transaction-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&directory).unwrap();
-        let pattern = directory.join("clip_tateclip_%05d.png");
+        let pattern = directory.join("clip_erabiflow_%05d.png");
         let unrelated = directory.join("keep.png");
         for index in 1..=3 {
             std::fs::write(
-                directory.join(format!("clip_tateclip_{index:05}.png")),
+                directory.join(format!("clip_erabiflow_{index:05}.png")),
                 format!("old-{index}"),
             )
             .unwrap();
@@ -3012,20 +3014,20 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
         let staged = transaction.staged_params(&params);
         let staged_path = PathBuf::from(&staged.output_path);
         let staged_parent = staged_path.parent().unwrap();
-        std::fs::write(staged_parent.join("clip_tateclip_00001.png"), b"new-1").unwrap();
-        std::fs::write(staged_parent.join("clip_tateclip_00002.png"), b"new-2").unwrap();
+        std::fs::write(staged_parent.join("clip_erabiflow_00001.png"), b"new-1").unwrap();
+        std::fs::write(staged_parent.join("clip_erabiflow_00002.png"), b"new-2").unwrap();
 
         transaction.commit().unwrap();
 
         assert_eq!(
-            std::fs::read(directory.join("clip_tateclip_00001.png")).unwrap(),
+            std::fs::read(directory.join("clip_erabiflow_00001.png")).unwrap(),
             b"new-1"
         );
         assert_eq!(
-            std::fs::read(directory.join("clip_tateclip_00002.png")).unwrap(),
+            std::fs::read(directory.join("clip_erabiflow_00002.png")).unwrap(),
             b"new-2"
         );
-        assert!(!directory.join("clip_tateclip_00003.png").exists());
+        assert!(!directory.join("clip_erabiflow_00003.png").exists());
         assert_eq!(std::fs::read(&unrelated).unwrap(), b"keep");
         std::fs::remove_dir_all(directory).unwrap();
     }
@@ -3034,13 +3036,13 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
     #[test]
     fn committed_png_sequence_matches_existing_windows_names_case_insensitively() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-png-case-transaction-test-{}",
+            "erabiflow-png-case-transaction-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&directory).unwrap();
         for index in 1..=3 {
             std::fs::write(
-                directory.join(format!("CLIP_TATECLIP_{index:05}.PNG")),
+                directory.join(format!("CLIP_ERABIFLOW_{index:05}.PNG")),
                 format!("old-{index}"),
             )
             .unwrap();
@@ -3050,7 +3052,7 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
         params.render_spec = None;
         params.export_format = "png_sequence".to_string();
         params.output_path = directory
-            .join("clip_tateclip_%05d.png")
+            .join("clip_erabiflow_%05d.png")
             .to_string_lossy()
             .into_owned();
         let transaction = RenderOutputTransaction::new(&params).unwrap();
@@ -3059,48 +3061,48 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
             .parent()
             .unwrap()
             .to_path_buf();
-        std::fs::write(staged_parent.join("clip_tateclip_00001.png"), b"new-1").unwrap();
-        std::fs::write(staged_parent.join("clip_tateclip_00002.png"), b"new-2").unwrap();
+        std::fs::write(staged_parent.join("clip_erabiflow_00001.png"), b"new-1").unwrap();
+        std::fs::write(staged_parent.join("clip_erabiflow_00002.png"), b"new-2").unwrap();
 
         transaction.commit().unwrap();
 
         assert_eq!(
-            std::fs::read(directory.join("clip_tateclip_00001.png")).unwrap(),
+            std::fs::read(directory.join("clip_erabiflow_00001.png")).unwrap(),
             b"new-1"
         );
         assert_eq!(
-            std::fs::read(directory.join("clip_tateclip_00002.png")).unwrap(),
+            std::fs::read(directory.join("clip_erabiflow_00002.png")).unwrap(),
             b"new-2"
         );
-        assert!(!directory.join("CLIP_TATECLIP_00003.PNG").exists());
+        assert!(!directory.join("CLIP_ERABIFLOW_00003.PNG").exists());
         std::fs::remove_dir_all(directory).unwrap();
     }
 
     #[test]
     fn render_transaction_rejects_a_concurrent_writer_for_the_same_output() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-render-lock-test-{}",
+            "erabiflow-render-lock-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&directory).unwrap();
-        let output = directory.join("clip_tateclip.mp4");
+        let output = directory.join("clip_erabiflow.mp4");
         let mut params: ProcessParams = serde_json::from_value(process_params_json()).unwrap();
         params.output_path = output.to_string_lossy().into_owned();
 
         let first = RenderOutputTransaction::new(&params).unwrap();
         let error = RenderOutputTransaction::new(&params).err().unwrap();
-        assert!(error.contains("別のTateClipで使用中"));
+        assert!(error.contains("別のErabiFlowで使用中"));
         #[cfg(windows)]
         {
             let mut differently_cased = params.clone();
             differently_cased.output_path = directory
-                .join("CLIP_TATECLIP.MP4")
+                .join("CLIP_ERABIFLOW.MP4")
                 .to_string_lossy()
                 .into_owned();
             let case_error = RenderOutputTransaction::new(&differently_cased)
                 .err()
                 .unwrap();
-            assert!(case_error.contains("別のTateClipで使用中"));
+            assert!(case_error.contains("別のErabiFlowで使用中"));
         }
         drop(first);
         let after_release = RenderOutputTransaction::new(&params).unwrap();
@@ -3111,18 +3113,18 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
     #[test]
     fn failed_png_restore_keeps_the_only_backup() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-png-restore-test-{}",
+            "erabiflow-png-restore-test-{}",
             uuid::Uuid::new_v4()
         ));
         let backup_directory = directory.join("backup");
-        let original = directory.join("clip_tateclip_00001.png");
+        let original = directory.join("clip_erabiflow_00001.png");
         std::fs::create_dir_all(&backup_directory).unwrap();
         std::fs::create_dir_all(&original).unwrap();
-        let backup = backup_directory.join("clip_tateclip_00001.png");
+        let backup = backup_directory.join("clip_erabiflow_00001.png");
         std::fs::write(&backup, b"only-backup").unwrap();
 
         let error = restore_png_backups(&[(backup.clone(), original.clone())]).unwrap_err();
-        assert!(error.contains("clip_tateclip_00001.png"));
+        assert!(error.contains("clip_erabiflow_00001.png"));
         assert_eq!(std::fs::read(&backup).unwrap(), b"only-backup");
         std::fs::remove_dir_all(directory).unwrap();
     }
@@ -3130,13 +3132,13 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
     #[test]
     fn interrupted_png_install_is_rolled_back_before_the_next_render() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-png-recovery-test-{}",
+            "erabiflow-png-recovery-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&directory).unwrap();
-        let pattern = directory.join("clip_tateclip_%05d.png");
-        let first = directory.join("clip_tateclip_00001.png");
-        let second = directory.join("clip_tateclip_00002.png");
+        let pattern = directory.join("clip_erabiflow_%05d.png");
+        let first = directory.join("clip_erabiflow_00001.png");
+        let second = directory.join("clip_erabiflow_00002.png");
         let (lock, lock_key) = OutputPathLock::acquire(&pattern).unwrap();
         drop(lock);
         let backup_directory = directory.join(format!(
@@ -3150,20 +3152,20 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
             &PngTransactionJournal {
                 state: "installing".to_string(),
                 old_files: vec![
-                    "clip_tateclip_00001.png".to_string(),
-                    "clip_tateclip_00002.png".to_string(),
+                    "clip_erabiflow_00001.png".to_string(),
+                    "clip_erabiflow_00002.png".to_string(),
                 ],
-                installed_files: vec!["clip_tateclip_00001.png".to_string()],
+                installed_files: vec!["clip_erabiflow_00001.png".to_string()],
             },
         )
         .unwrap();
         std::fs::write(
-            backup_directory.join("clip_tateclip_00001.png"),
+            backup_directory.join("clip_erabiflow_00001.png"),
             b"previous-1",
         )
         .unwrap();
         std::fs::write(
-            backup_directory.join("clip_tateclip_00002.png"),
+            backup_directory.join("clip_erabiflow_00002.png"),
             b"previous-2",
         )
         .unwrap();
@@ -3185,14 +3187,14 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
     #[test]
     fn interrupted_install_recovery_preserves_already_restored_old_frames() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-png-partial-rollback-test-{}",
+            "erabiflow-png-partial-rollback-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&directory).unwrap();
-        let pattern = directory.join("clip_tateclip_%05d.png");
-        let first = directory.join("clip_tateclip_00001.png");
-        let second = directory.join("clip_tateclip_00002.png");
-        let third = directory.join("clip_tateclip_00003.png");
+        let pattern = directory.join("clip_erabiflow_%05d.png");
+        let first = directory.join("clip_erabiflow_00001.png");
+        let second = directory.join("clip_erabiflow_00002.png");
+        let third = directory.join("clip_erabiflow_00003.png");
         let (lock, lock_key) = OutputPathLock::acquire(&pattern).unwrap();
         drop(lock);
         let backup_directory = directory.join(format!(
@@ -3206,8 +3208,8 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
             &PngTransactionJournal {
                 state: "installing".to_string(),
                 old_files: vec![
-                    "clip_tateclip_00001.png".to_string(),
-                    "clip_tateclip_00002.png".to_string(),
+                    "clip_erabiflow_00001.png".to_string(),
+                    "clip_erabiflow_00002.png".to_string(),
                 ],
                 installed_files: vec![],
             },
@@ -3216,7 +3218,7 @@ Stream #0:1: Audio: aac, 48000 Hz, stereo";
         std::fs::write(&first, b"already-restored-old-1").unwrap();
         std::fs::write(&second, b"new-2").unwrap();
         std::fs::write(&third, b"new-only-3").unwrap();
-        std::fs::write(backup_directory.join("clip_tateclip_00002.png"), b"old-2").unwrap();
+        std::fs::write(backup_directory.join("clip_erabiflow_00002.png"), b"old-2").unwrap();
 
         let mut params: ProcessParams = serde_json::from_value(process_params_json()).unwrap();
         params.render_spec = None;

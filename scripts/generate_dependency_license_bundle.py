@@ -1,4 +1,4 @@
-"""Generate a deterministic license-text bundle for packaged TateClip builds."""
+"""Generate a deterministic license-text bundle for packaged ErabiFlow builds."""
 
 from __future__ import annotations
 
@@ -136,7 +136,7 @@ def main() -> None:
         raise SystemExit("no dependency license texts were collected")
 
     lines = [
-        "TateClip Dependency License Bundle",
+        "ErabiFlow Dependency License Bundle",
         "==================================",
         "",
         "This generated file accompanies packaged builds. It lists the exact Windows",

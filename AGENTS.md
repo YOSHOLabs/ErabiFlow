@@ -1,10 +1,10 @@
-# AGENTS.md — TateClip リポジトリ作業指示
+# AGENTS.md — ErabiFlow リポジトリ作業指示
 
 このファイルはリポジトリ全体に適用する。ここに書かれた事実は、ソースコード、設定、テスト、リリース文書を確認した時点のもの。コードと文書が食い違う場合は、実行されるコードとテストを優先し、食い違い自体も報告すること。確認できないことを推測で補わず、最終報告で「未確認」と明記する。
 
 ## 1. プロジェクト概要
 
-TateClip は、横・縦を問わない長い動画をローカルで解析し、AIが提示した見どころ候補と根拠をもとに人がKEEP／没を判断する Windows 向けデスクトップアプリである。主なワークスペースは「見どころを見つける」「ラフカットを決める」「受け渡す」。完成映像の演出を行う動画編集ソフトではなく、元画角のラフカット動画とJSON／CSV／CMX 3600 EDL／SRTをPremiere ProやDaVinci Resolve等へ渡す橋渡し製品として扱う。
+ErabiFlow は、横・縦を問わない長い動画をローカルで解析し、AIが提示した見どころ候補と根拠をもとに人がKEEP／没を判断する Windows 向けデスクトップアプリである。主なワークスペースは「見どころを見つける」「ラフカットを決める」「受け渡す」。完成映像の演出を行う動画編集ソフトではなく、元画角のラフカット動画とJSON／CSV／CMX 3600 EDL／SRTをPremiere ProやDaVinci Resolve等へ渡す橋渡し製品として扱う。
 
 主要技術は次のとおり。
 
@@ -108,15 +108,15 @@ TateClip は、横・縦を問わない長い動画をローカルで解析し�
 - Rust daemon は配布 exe を優先し、development では Python script に fallback する。boot handshake は 10 秒、pending request は 10 分 timeout、stderr は直近 100 行を保持する。
 - Python は request ごとに daemon thread を作り得る。`LocalAnalysisEngine` は singleton であり、無制限並列を追加しない。chunk 内の game / voice 音声解析は `ThreadPoolExecutor(max_workers=2)`、Whisper track は逐次処理である。
 - cancel は job id に対応する `threading.Event` を Whisper 実行中や段階間で確認し、外部 `Popen` を kill する。cancel latency と race をテストし、完了 event と cancel event の順序を決め打ちしない。
-- 解析 cache は version 14。key は絶対パス、file stat、解析 parameter、subtitle correction digest を含み、結果は temp から atomic replace する。cache 読み書き失敗は解析全体を失敗させない。既定 root は `%LOCALAPPDATA%/TateClip/analysis-cache`。
+- 解析 cache は version 14。key は絶対パス、file stat、解析 parameter、subtitle correction digest を含み、結果は temp から atomic replace する。cache 読み書き失敗は解析全体を失敗させない。既定 root は `%LOCALAPPDATA%/ErabiFlow/analysis-cache`。
 - Python の一時ファイルは PID + UUID で衝突回避し、`finally` で削除する。`VFOCUS_FFMPEG_PATH` / `VFOCUS_FFPROBE_PATH` 未設定時は PATH の command に fallback する。
 
 ### セキュリティ、Windows、配布
 
-- 選択したファイルだけを asset scope に登録する。出力は絶対パス、入力と同じ directory、許可 extension、`<入力stem>_tateclip...` の条件を Rust が検証する。検証を UI だけへ移さない。
+- 選択したファイルだけを asset scope に登録する。出力は絶対パス、入力と同じ directory、許可 extension、`<入力stem>_erabiflow...` の条件を Rust が検証する。検証を UI だけへ移さない。
 - 外部 URL opener は TikTok、Instagram、YouTube の allowlist。任意 URL や外部 content を privileged WebView に入れない。
 - Creator では広告を表示しない。広告失敗で export を失敗させない。動画、パス、字幕を monetization 計測へ追加しない。
-- release build / smoke script は PowerShell、MSI、Windows updater signing に依存する。署名鍵は環境変数または `%USERPROFILE%\.tateclip\updater-keys` から読み込み、リポジトリへ置かない。
+- release build / smoke script は PowerShell、MSI、Windows updater signing に依存する。署名鍵は環境変数または `%USERPROFILE%\.erabiflow\updater-keys` から読み込み、リポジトリへ置かない。
 - `release/metadata.json`の販売状態は既定で無効、未設定URLは空または`example.invalid`とする。ソースリポジトリの公開判定と、将来の一般ユーザー向けMSI配布判定を混同しない。
 
 ## 6. 変更時の基本ルール

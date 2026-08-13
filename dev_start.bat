@@ -2,7 +2,7 @@
 chcp 65001 > nul
 pushd "%~dp0"
 echo =========================================
-echo TateClip Dev Mode
+echo ErabiFlow Dev Mode
 echo =========================================
 echo.
 echo * Hot-reloading is enabled.
@@ -14,7 +14,7 @@ set "TAURI_EXIT_CODE=%ERRORLEVEL%"
 
 if not "%TAURI_EXIT_CODE%"=="0" (
     echo.
-    echo [ERROR] TateClip failed to start. Exit code: %TAURI_EXIT_CODE%
+    echo [ERROR] ErabiFlow failed to start. Exit code: %TAURI_EXIT_CODE%
 )
 pause
 popd

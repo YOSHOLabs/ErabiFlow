@@ -15,8 +15,8 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') {
 }
 
 $MsiDir = [IO.Path]::GetFullPath((Join-Path $RootDir "src-tauri\target-lite\release\bundle\msi"))
-$Source = [IO.Path]::GetFullPath((Join-Path $MsiDir "TateClip_${Version}_x64_ja-JP.msi"))
-$Destination = [IO.Path]::GetFullPath((Join-Path $MsiDir "TateClip_${Version}_x64_ja-JP_light.msi"))
+$Source = [IO.Path]::GetFullPath((Join-Path $MsiDir "ErabiFlow_${Version}_x64_ja-JP.msi"))
+$Destination = [IO.Path]::GetFullPath((Join-Path $MsiDir "ErabiFlow_${Version}_x64_ja-JP_light.msi"))
 $SourceSignature = "$Source.sig"
 $DestinationSignature = "$Destination.sig"
 

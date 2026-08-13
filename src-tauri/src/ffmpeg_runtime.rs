@@ -420,7 +420,7 @@ pub async fn download_ffmpeg_runtime(app: tauri::AppHandle) -> Result<FfmpegRunt
     } else {
         let client = reqwest::Client::builder()
             .connect_timeout(Duration::from_secs(20))
-            .user_agent("TateClip/0.1 ffmpeg-downloader")
+            .user_agent("ErabiFlow/0.1 ffmpeg-downloader")
             .build()
             .map_err(|error| format!("動画エンジン取得クライアントを作成できません: {error}"))?;
         emit_progress(

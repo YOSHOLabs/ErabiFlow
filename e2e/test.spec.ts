@@ -4,8 +4,8 @@ test("開始画面がラフカット支援の3工程を伝える", async ({ page
     test.setTimeout(120_000)
     await page.goto("/", { waitUntil: "domcontentloaded" })
 
-    await expect(page.getByText("TateClip", { exact: true })).toBeVisible()
-    await expect(page.getByText("AI ROUGH CUT ASSISTANT", { exact: true })).toBeVisible()
+    await expect(page.getByText("ErabiFlow", { exact: true })).toBeVisible()
+    await expect(page.getByText("BY YOSHOLABS", { exact: true })).toBeVisible()
     await expect(page.getByRole("heading", { name: /全編を見返さず.*残す／削るを決める/ })).toBeVisible({ timeout: 60_000 })
     await expect(page.getByText("横・縦を問わない、ローカル完結のラフカットアシスタントです。", { exact: false })).toBeVisible()
     const workflow = page.getByRole("navigation", { name: "制作工程" })
@@ -103,7 +103,7 @@ test("横動画は元画角のラフカットとNLE受け渡しを既定にす�
     const downloadPromise = page.waitForEvent("download")
     await handoff.getByRole("button", { name: /JSON.*完全なKEEPデータ/ }).click()
     const download = await downloadPromise
-    expect(download.suggestedFilename()).toBe("game-commentary_tateclip_roughcut.json")
+    expect(download.suggestedFilename()).toBe("game-commentary_erabiflow_roughcut.json")
 })
 
 test("縦動画も元画角のまま受け渡せる", async ({ page }) => {

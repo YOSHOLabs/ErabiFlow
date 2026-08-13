@@ -139,7 +139,7 @@ fn acquire_feedback_file_lock(directory: &Path) -> Result<fs::File, String> {
     }
     options
         .open(directory.join(LOCK_FILE))
-        .map_err(|error| format!("編集学習データは別のTateClipが使用中です: {error}"))
+        .map_err(|error| format!("編集学習データは別のErabiFlowが使用中です: {error}"))
 }
 
 fn validate_identifier(label: &str, value: &str) -> Result<(), String> {
@@ -614,7 +614,7 @@ mod tests {
     #[test]
     fn stores_only_the_validated_jsonl_event_and_can_clear_it() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-highlight-feedback-{}",
+            "erabiflow-highlight-feedback-{}",
             uuid::Uuid::new_v4()
         ));
         append_feedback_inner(&directory, &event()).unwrap();
@@ -649,7 +649,7 @@ mod tests {
     #[test]
     fn appends_a_batch_under_one_lock_and_rejects_empty_batches() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-highlight-feedback-batch-{}",
+            "erabiflow-highlight-feedback-batch-{}",
             uuid::Uuid::new_v4()
         ));
         let mut second = event();
@@ -665,7 +665,7 @@ mod tests {
     #[test]
     fn summarizes_final_decisions_boundaries_and_uncovered_misses() {
         let directory = std::env::temp_dir().join(format!(
-            "tateclip-highlight-feedback-summary-{}",
+            "erabiflow-highlight-feedback-summary-{}",
             uuid::Uuid::new_v4()
         ));
         let mut shown = event();

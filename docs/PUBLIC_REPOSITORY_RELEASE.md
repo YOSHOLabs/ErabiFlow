@@ -1,6 +1,6 @@
 # GitHub Public公開手順
 
-対象は`YOSHOLabs/TateClip`のソースリポジトリです。一般ユーザー向けMSI、EULA、Webサイト、GitHub Releaseの公開可否は別に判定します。
+対象は`YOSHOLabs/ErabiFlow`のソースリポジトリです。一般ユーザー向けMSI、EULA、Webサイト、GitHub Releaseの公開可否は別に判定します。
 
 ## 公開対象
 
@@ -18,7 +18,7 @@
 2. 監査済み公開対象だけを新しい空folderへcopyする。
 3. 新しいGit repositoryを`main`で初期化し、author／committerへGitHub noreply identityを設定する。
 4. 全ファイルを1つの親なしcommitとして記録する。
-5. `origin`は`https://github.com/YOSHOLabs/TateClip.git`にするが、GO判定前はfetch／pushしない。
+5. `origin`は`https://github.com/YOSHOLabs/ErabiFlow.git`にするが、GO判定前はfetch／pushしない。
 6. 旧tag、`refs/codex`、reflog、unreachable object、旧`.git`をcopyしない。
 
 ## clean clone検証

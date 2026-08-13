@@ -1541,13 +1541,13 @@ mod tests {
 
     #[test]
     fn smoke_source_rough_cut_with_real_video_when_configured() {
-        let Some(video_path) = std::env::var_os("TATECLIP_ROUGH_CUT_SMOKE_VIDEO") else {
+        let Some(video_path) = std::env::var_os("ERABIFLOW_ROUGH_CUT_SMOKE_VIDEO") else {
             return;
         };
         let ffmpeg_path =
-            std::env::var_os("TATECLIP_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
+            std::env::var_os("ERABIFLOW_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
         let output_path = std::env::temp_dir().join(format!(
-            "tateclip-rough-cut-smoke-{}.mp4",
+            "erabiflow-rough-cut-smoke-{}.mp4",
             uuid::Uuid::new_v4()
         ));
         let mut params = default_params();
@@ -2021,17 +2021,17 @@ mod tests {
 
     #[test]
     fn smoke_nle_clip_effects_with_real_video_when_configured() {
-        let Some(video_path) = std::env::var_os("TATECLIP_NLE_SMOKE_VIDEO") else {
+        let Some(video_path) = std::env::var_os("ERABIFLOW_NLE_SMOKE_VIDEO") else {
             return;
         };
         let ffmpeg_path =
-            std::env::var_os("TATECLIP_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
+            std::env::var_os("ERABIFLOW_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
         let output_path =
-            std::env::temp_dir().join(format!("tateclip-nle-smoke-{}.mp4", std::process::id()));
+            std::env::temp_dir().join(format!("erabiflow-nle-smoke-{}.mp4", std::process::id()));
 
         let mut params = default_params();
         params.header_text = "";
-        params.watermark_text = "TateClip Smoke";
+        params.watermark_text = "ErabiFlow Smoke";
         params.watermark_position = "bottom-right";
         params.watermark_opacity = 0.45;
         params.has_avatar = false;
@@ -2176,16 +2176,16 @@ mod tests {
     #[test]
     fn smoke_arbitrary_tracks_with_real_media_when_configured() {
         let (Some(main_path), Some(overlay_path), Some(audio_path)) = (
-            std::env::var_os("TATECLIP_TRACK_SMOKE_MAIN"),
-            std::env::var_os("TATECLIP_TRACK_SMOKE_OVERLAY"),
-            std::env::var_os("TATECLIP_TRACK_SMOKE_AUDIO"),
+            std::env::var_os("ERABIFLOW_TRACK_SMOKE_MAIN"),
+            std::env::var_os("ERABIFLOW_TRACK_SMOKE_OVERLAY"),
+            std::env::var_os("ERABIFLOW_TRACK_SMOKE_AUDIO"),
         ) else {
             return;
         };
         let ffmpeg_path =
-            std::env::var_os("TATECLIP_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
+            std::env::var_os("ERABIFLOW_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into());
         let output_path =
-            std::env::temp_dir().join(format!("tateclip-track-smoke-{}.mp4", std::process::id()));
+            std::env::temp_dir().join(format!("erabiflow-track-smoke-{}.mp4", std::process::id()));
         let mut params = default_params();
         params.header_text = "";
         params.has_avatar = false;
@@ -2327,7 +2327,7 @@ mod tests {
             "arbitrary-track smoke output is unexpectedly small: {bytes}"
         );
         let probe = std::process::Command::new(
-            std::env::var_os("TATECLIP_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into()),
+            std::env::var_os("ERABIFLOW_NLE_SMOKE_FFMPEG").unwrap_or_else(|| "ffmpeg".into()),
         )
         .arg("-i")
         .arg(&output_path)

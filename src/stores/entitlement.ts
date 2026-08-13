@@ -3,7 +3,7 @@ import { normalizeProductPlan, type ProductPlan } from "@/lib/entitlements"
 import { commands, type EntitlementSnapshot } from "@/tauri/commands"
 import { isTauriEnv } from "@/lib/utils"
 
-const DEVELOPMENT_PLAN_KEY = "tateclip:development-plan"
+const DEVELOPMENT_PLAN_KEY = "erabiflow:development-plan"
 
 type EntitlementSource = "default" | "development" | "license"
 export type EntitlementStatus = "loading" | "free" | "creator" | "invalid" | "error"

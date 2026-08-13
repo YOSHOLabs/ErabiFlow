@@ -1,5 +1,5 @@
 {
-  "name": "tateclip",
+  "name": "erabiflow",
   "version": "0.1.0",
   "description": "長時間動画の見どころ・盛り上がり・不要部分の判断を支援し、編集ソフトへ渡す区間を選ぶWindowsアプリ",
   "private": true,
@@ -7,12 +7,12 @@
   "author": "YOSHOLabs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOSHOLabs/TateClip.git"
+    "url": "git+https://github.com/YOSHOLabs/ErabiFlow.git"
   },
   "bugs": {
-    "url": "https://github.com/YOSHOLabs/TateClip/issues"
+    "url": "https://github.com/YOSHOLabs/ErabiFlow/issues"
   },
-  "homepage": "https://github.com/YOSHOLabs/TateClip#readme",
+  "homepage": "https://github.com/YOSHOLabs/ErabiFlow#readme",
   "type": "module",
   "packageManager": "npm@11.6.2",
   "engines": {

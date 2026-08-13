@@ -674,7 +674,7 @@ export const DEFAULT_PUBLISHING: PublishingState = {
 
 export const DEFAULT_WATERMARK: WatermarkState = {
     enabled: false,
-    text: "TateClip",
+    text: "ErabiFlow",
     font: "system:meiryo-bold",
     color: "#FFFFFF",
     size: 28,

@@ -116,7 +116,7 @@ export function RuntimeCheckPanel() {
     const copyDaemonDiagnostics = () => {
         if (!daemonDiagnostics) return
         void navigator.clipboard?.writeText([
-            "TateClip Daemon Diagnostics",
+            "ErabiFlow Daemon Diagnostics",
             `alive: ${daemonDiagnostics.alive}`,
             `pendingRequests: ${daemonDiagnostics.pendingRequests}`,
             `restartCount: ${daemonDiagnostics.restartCount}`,

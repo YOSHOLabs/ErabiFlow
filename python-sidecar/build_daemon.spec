@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-TateClip gemma_daemon PyInstaller spec file
+ErabiFlow gemma_daemon PyInstaller spec file
 
 ビルド:
     cd python-sidecar

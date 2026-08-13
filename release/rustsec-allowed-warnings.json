@@ -147,7 +147,7 @@
       "advisoryId": "RUSTSEC-2026-0097",
       "package": "rand",
       "version": "0.8.5",
-      "rationale": "PHF生成マクロ経由の推移依存。問題条件であるrandへ再入する独自loggerをV-Focusは定義せず、直接rand APIも使用していない。"
+      "rationale": "PHF生成マクロ経由の推移依存。問題条件であるrandへ再入する独自loggerをErabiFlowは定義せず、直接rand APIも使用していない。"
     }
   ]
 }

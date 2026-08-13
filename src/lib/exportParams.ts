@@ -162,8 +162,8 @@ function buildOutputPath(inputPath: string, format: ExportSettings["format"] = "
     const lastDot = inputPath.lastIndexOf(".")
     const base = lastDot > lastSlash ? inputPath.slice(0, lastDot) : inputPath
     // Rust側はH.264/AACのMP4を書き出すため、素材の拡張子には引きずられない。
-    if (format === "png_sequence") return `${base}_tateclip_roughcut_%05d.png`
-    return `${base}_tateclip_roughcut.${format}`
+    if (format === "png_sequence") return `${base}_erabiflow_roughcut_%05d.png`
+    return `${base}_erabiflow_roughcut.${format}`
 }
 
 export function renderSpecToProcessParams(

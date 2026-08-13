@@ -57,7 +57,7 @@ export function HighlightFeedbackControl() {
             }
             setSummary(latestSummary)
             const path = await save({
-                defaultPath: `tateclip-highlight-feedback.${format}`,
+                defaultPath: `erabiflow-highlight-feedback.${format}`,
                 filters: [{ name: format === "json" ? "JSON" : "CSV", extensions: [format] }],
             })
             if (!path) return

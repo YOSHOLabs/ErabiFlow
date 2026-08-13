@@ -1,5 +1,5 @@
 /**
- * document.ts — TateClip 統一プロジェクトドキュメント (Single Source of Truth)
+ * document.ts — ErabiFlow 統一プロジェクトドキュメント (Single Source of Truth)
  *
  * 7つの旧ストア (project, timeline, text, avatar, processing, se, image) の
  * 全データを1つの Zustand ストアに統合する。

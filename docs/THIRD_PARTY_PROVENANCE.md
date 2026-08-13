@@ -1,21 +1,21 @@
 # Third-party provenance
 
-この文書は、TateClipがソースツリーへ直接置く実行物・モデルと、配布時に取得または同梱する主要コンポーネントの出所を固定します。依存更新時は、コード、lockfile、SHA-256、ライセンス通知を同時に更新します。
+この文書は、ErabiFlowがソースツリーへ直接置く実行物・モデルと、配布時に取得または同梱する主要コンポーネントの出所を固定します。依存更新時は、コード、lockfile、SHA-256、ライセンス通知を同時に更新します。
 
 ## Gitで追跡するMediaPipeコンポーネント
 
 | ファイル | 出所 | Bytes | SHA-256 | License |
 | --- | --- | ---: | --- | --- |
-| `public/mediapipe-wasm/vision_wasm_internal.js` | `@mediapipe/tasks-vision@0.10.32/wasm` | 204816 | `6f6b86509cf9e163ea1cfec7edc8cf53732699c04781e4c21c557c1ba402310e` | Apache-2.0 |
-| `public/mediapipe-wasm/vision_wasm_internal.wasm` | `@mediapipe/tasks-vision@0.10.32/wasm` | 11453626 | `cb3ec20026a9aecc2a81a93c25630ceb5389297ddb7a5f0bd61dd09cde606b9b` | Apache-2.0 |
-| `public/mediapipe-wasm/vision_wasm_nosimd_internal.js` | `@mediapipe/tasks-vision@0.10.32/wasm` | 204669 | `9f8fc960e363f0fb2f42f7937b97ae9cf9a5630490f71031fa90caa9bb121938` | Apache-2.0 |
-| `public/mediapipe-wasm/vision_wasm_nosimd_internal.wasm` | `@mediapipe/tasks-vision@0.10.32/wasm` | 10647962 | `924274fcd5ac8985f6570a8573e7971b7bd2d580ba1b8f3beb0ba8f95db6347c` | Apache-2.0 |
+| `public/mediapipe-wasm/vision_wasm_internal.js` | `@mediapipe/tasks-vision@0.10.35/wasm` | 322044 | `e7fd9858e8e8f221d9b96eddc11f8e077f263e0b7bbd79d3cbe882b134274f8c` | Apache-2.0 |
+| `public/mediapipe-wasm/vision_wasm_internal.wasm` | `@mediapipe/tasks-vision@0.10.35/wasm` | 11153617 | `6a5c64584c2ab61c763b6e204afbdbc7ce1caf7f5216187322bca8df94f646bc` | Apache-2.0 |
+| `public/mediapipe-wasm/vision_wasm_nosimd_internal.js` | `@mediapipe/tasks-vision@0.10.35/wasm` | 321847 | `438d1fe8ff7f4d946025bc211c291543c037d8a3785ed4eee60f1f521b236296` | Apache-2.0 |
+| `public/mediapipe-wasm/vision_wasm_nosimd_internal.wasm` | `@mediapipe/tasks-vision@0.10.35/wasm` | 10481398 | `8a3092d34c79d3f57e6ba8592105e8a90f6b07c27891ffecd14cca428bfd3e31` | Apache-2.0 |
 | `public/mediapipe-wasm/blaze_face_short_range.tflite` | [Google MediaPipe model storage](https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite) | 229746 | `b4578f35940bf5a1a655214a1cce5cab13eba73c1297cd78e1a04c2380b0152f` | Apache-2.0 |
 | `public/mediapipe-wasm/magic_touch.tflite` | [Google MediaPipe model storage](https://storage.googleapis.com/mediapipe-models/interactive_segmenter/magic_touch/float32/1/magic_touch.tflite) | 6227884 | `e24338a717c1b7ad8d159666677ef400babb7f33b8ad60c4d96db4ecf694cd25` | Apache-2.0 |
 
 WASM 4ファイルは、同じlockfileから導入した`node_modules/@mediapipe/tasks-vision/wasm`とbyte-for-byteで一致することを確認します。MediaPipe本体とモデルの利用条件は[公式リポジトリ](https://github.com/google-ai-edge/mediapipe)を参照し、Apache-2.0全文を`src-tauri/resources/licenses/Apache-2.0.txt`へ同梱します。
 
-MediaPipe公式は一般のTasks APIについて利用状況metricsを送る場合があると案内しています。TateClipはWASMとモデルをローカル配布し、本番WebViewの`connect-src`をTauri IPCとローカルprotocolだけに制限しているため、現在の統合からGoogle等の第三者endpointへ通信できません。MediaPipe更新またはCSP変更時は、入力データだけでなくmetrics通信も再監査します。
+MediaPipe公式は一般のTasks APIについて利用状況metricsを送る場合があると案内しています。ErabiFlowはWASMとモデルをローカル配布し、本番WebViewの`connect-src`をTauri IPCとローカルprotocolだけに制限しているため、現在の統合からGoogle等の第三者endpointへ通信できません。MediaPipe更新またはCSP変更時は、入力データだけでなくmetrics通信も再監査します。
 
 ## Gitで追跡しない配布ランタイム
 
@@ -29,10 +29,10 @@ MediaPipe公式は一般のTasks APIについて利用状況metricsを送る場�
 
 Vulkan／CUDA版whisper.cppはCPU fallbackと別の任意最適化です。再現可能性を守るため、出所、commit、build flags、ハッシュが記録されていないローカルGPU buildを配布物へ混入させません。
 
-## TateClip固有アセット
+## ErabiFlow固有アセット
 
-- `branding/tateclip-icon-master.png`はOpenAI Media Serviceで生成した画像をYOSHOLabsがTateClipのブランドmasterとして採用したものです。ファイル内にOpenAI Media ServiceのC2PA Content Credentialsを保持しています。OpenAIとの関係では生成outputの権利は利用者側に帰属するとされますが、outputの非一意性、第三者権利の確認、適用法上の保護可能性は別問題です。利用条件は[OpenAI Services Agreement](https://openai.com/policies/services-agreement/)を確認します。SHA-256は`ee7cf29711da8116ed618c336b03b21ad92a8b359642bac8cf05a7fd769afa89`です。
-- `src-tauri/icons/`と`public/brand/`は上記masterから作ったTateClip用派生iconです。これらのTateClip名・ロゴとしての使用には、ソースコードの権利条件とは別に`TRADEMARKS.md`を適用します。
+- `branding/erabiflow-icon-master.png`はOpenAI Media Serviceで生成した画像をYOSHOLabsがErabiFlowのブランドmasterとして採用したものです。ファイル内にOpenAI Media ServiceのC2PA Content Credentialsを保持しています。OpenAIとの関係では生成outputの権利は利用者側に帰属するとされますが、outputの非一意性、第三者権利の確認、適用法上の保護可能性は別問題です。利用条件は[OpenAI Services Agreement](https://openai.com/policies/services-agreement/)を確認します。SHA-256は`ee7cf29711da8116ed618c336b03b21ad92a8b359642bac8cf05a7fd769afa89`です。
+- `src-tauri/icons/`と`public/brand/`は上記masterから作ったErabiFlow用派生iconです。これらのErabiFlow名・ロゴとしての使用には、ソースコードの権利条件とは別に`TRADEMARKS.md`を適用します。
 - `public/se-icons/*`はGoogle Generative AIで生成した8画像です。各ファイルのC2PA manifestは`c2pa.created`のdigital source typeを`trainedAlgorithmicMedia`とし、SynthID watermark処理も記録しています。Googleは生成contentの所有権を主張しないとしていますが、利用者が適法性と第三者権利を確認する責任は残ります。利用条件は[Gemini API Additional Terms](https://ai.google.dev/gemini-api/terms)を確認します。ファイル名は既存互換のため`.png`ですが、payloadはJPEG/JFIFです。C2PA manifestを除去・改変せず、置換時は生成元、取得日、hashを更新します。
 - `assets/se/*.wav` は44.1kHz mono、1秒、全サンプル値0の無音placeholderです。第三者の録音物は含みません。
 - テスト動画、ユーザー動画、`.vfocus`、`.vflicense`、配布MSI、モデル、FFmpeg、Python build outputはGit管理対象外です。

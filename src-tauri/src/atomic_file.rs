@@ -44,7 +44,7 @@ mod tests {
     #[test]
     fn replaces_an_existing_file_with_the_staged_file() {
         let directory =
-            std::env::temp_dir().join(format!("tateclip-atomic-replace-{}", uuid::Uuid::new_v4()));
+            std::env::temp_dir().join(format!("erabiflow-atomic-replace-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&directory).unwrap();
         let destination = directory.join("project.vfocus");
         let staged = directory.join("project.vfocus.tmp");

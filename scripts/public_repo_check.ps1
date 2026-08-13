@@ -89,6 +89,7 @@ $AllowedReleasePaths = @(
 $AllowedScriptPaths = @(
     'scripts/bootstrap_dev.ps1',
     'scripts/build_public_lite.ps1',
+    'scripts/capture_portfolio_screenshots.mjs',
     'scripts/clean_stale_release_resources.ps1',
     'scripts/configure_update_endpoint.mjs',
     'scripts/create_public_source_snapshot.ps1',
@@ -180,15 +181,50 @@ foreach ($Email in $CommitEmails) {
 }
 
 $CargoToml = Get-Content -LiteralPath (Join-Path $RootDir 'src-tauri\Cargo.toml') -Raw
-if ($CargoToml -notmatch '(?m)^repository\s*=\s*"https://github\.com/YOSHOLabs/TateClip"\s*$') {
-    Add-Failure "src-tauri/Cargo.toml must identify YOSHOLabs/TateClip."
+if ($CargoToml -notmatch '(?m)^repository\s*=\s*"https://github\.com/YOSHOLabs/ErabiFlow"\s*$') {
+    Add-Failure "src-tauri/Cargo.toml must identify YOSHOLabs/ErabiFlow."
 }
 if ($CargoToml -match '(?m)^license\s*=' -or $CargoToml -notmatch '(?m)^license-file\s*=\s*"\.\./LICENSE"\s*$') {
     Add-Failure "src-tauri/Cargo.toml must use the custom root LICENSE and no OSS license identifier."
 }
 $PackageJson = Get-Content -LiteralPath (Join-Path $RootDir 'package.json') -Raw | ConvertFrom-Json
-if ($PackageJson.license -ne 'UNLICENSED' -or $PackageJson.repository.url -ne 'git+https://github.com/YOSHOLabs/TateClip.git') {
-    Add-Failure "package.json must declare UNLICENSED and YOSHOLabs/TateClip."
+if ($PackageJson.license -ne 'UNLICENSED' -or $PackageJson.repository.url -ne 'git+https://github.com/YOSHOLabs/ErabiFlow.git') {
+    Add-Failure "package.json must declare UNLICENSED and YOSHOLabs/ErabiFlow."
+}
+$MediaPipePackagePath = Join-Path $RootDir 'node_modules\@mediapipe\tasks-vision\package.json'
+if (-not (Test-Path -LiteralPath $MediaPipePackagePath -PathType Leaf)) {
+    Add-Failure 'MediaPipe dependency is not installed. Run npm ci before the repository checker.'
+} else {
+    $MediaPipePackage = Get-Content -LiteralPath $MediaPipePackagePath -Raw | ConvertFrom-Json
+    $MediaPipeVersion = [string]$MediaPipePackage.version
+    foreach ($Name in @(
+        'vision_wasm_internal.js',
+        'vision_wasm_internal.wasm',
+        'vision_wasm_nosimd_internal.js',
+        'vision_wasm_nosimd_internal.wasm'
+    )) {
+        $TrackedWasm = Join-Path $RootDir "public\mediapipe-wasm\$Name"
+        $InstalledWasm = Join-Path $RootDir "node_modules\@mediapipe\tasks-vision\wasm\$Name"
+        if (-not (Test-Path -LiteralPath $TrackedWasm -PathType Leaf) -or
+            -not (Test-Path -LiteralPath $InstalledWasm -PathType Leaf)) {
+            Add-Failure "MediaPipe runtime file is missing: $Name"
+            continue
+        }
+        $TrackedHash = (Get-FileHash -LiteralPath $TrackedWasm -Algorithm SHA256).Hash
+        $InstalledHash = (Get-FileHash -LiteralPath $InstalledWasm -Algorithm SHA256).Hash
+        if ($TrackedHash -ne $InstalledHash) {
+            Add-Failure "Tracked MediaPipe runtime does not match @mediapipe/tasks-vision ${MediaPipeVersion}: $Name"
+        }
+    }
+
+    $ProvenanceText = Get-Content -LiteralPath (Join-Path $RootDir 'docs\THIRD_PARTY_PROVENANCE.md') -Raw
+    $NoticeText = Get-Content -LiteralPath (Join-Path $RootDir 'src-tauri\resources\THIRD_PARTY_NOTICES.txt') -Raw
+    if ($ProvenanceText -notmatch [regex]::Escape("@mediapipe/tasks-vision@${MediaPipeVersion}/wasm")) {
+        Add-Failure "MediaPipe provenance does not identify @mediapipe/tasks-vision ${MediaPipeVersion}."
+    }
+    if ($NoticeText -notmatch [regex]::Escape("@mediapipe/tasks-vision ${MediaPipeVersion}")) {
+        Add-Failure "Third-party notices do not identify @mediapipe/tasks-vision ${MediaPipeVersion}."
+    }
 }
 $LicenseText = Get-Content -LiteralPath (Join-Path $RootDir 'LICENSE') -Raw
 if ($LicenseText -notmatch 'All Rights Reserved' -or $LicenseText -notmatch 'not open-source software' -or $LicenseText -notmatch 'YOSHOLabs') {
@@ -213,7 +249,7 @@ if ($InitialPublication) {
     foreach ($Object in $Unreachable) { Add-Failure "Initial public repository contains an unreachable old object: $Object" }
 }
 
-$ExpectedRepository = 'YOSHOLabs/TateClip'
+$ExpectedRepository = 'YOSHOLabs/ErabiFlow'
 if ($env:GITHUB_ACTIONS -eq 'true') {
     $GitHubServerUrl = $null
     try {
@@ -235,7 +271,7 @@ if ($env:GITHUB_ACTIONS -eq 'true') {
     }
 
     if ($env:GITHUB_REPOSITORY -ine $ExpectedRepository) {
-        Add-Failure 'GITHUB_REPOSITORY must identify YOSHOLabs/TateClip.'
+        Add-Failure 'GITHUB_REPOSITORY must identify YOSHOLabs/ErabiFlow.'
     } else {
         $ExpectedRepository = $env:GITHUB_REPOSITORY
     }
@@ -247,7 +283,7 @@ if (-not $RemoteUrl) {
 } else {
     $RemoteRepository = Get-NormalizedGitHubRepository $RemoteUrl
     if (-not $RemoteRepository -or $RemoteRepository -ine $ExpectedRepository) {
-        Add-Failure "Git remote 'origin' must securely identify https://github.com/YOSHOLabs/TateClip."
+        Add-Failure "Git remote 'origin' must securely identify https://github.com/YOSHOLabs/ErabiFlow."
     }
 }
 
