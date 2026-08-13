@@ -2,6 +2,7 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /
+    open-pull-requests-limit: 0
     schedule:
       interval: weekly
     groups:
@@ -12,6 +13,7 @@ updates:
 
   - package-ecosystem: cargo
     directory: /src-tauri
+    open-pull-requests-limit: 0
     schedule:
       interval: weekly
     groups:
@@ -22,5 +24,6 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
+    open-pull-requests-limit: 0
     schedule:
       interval: weekly
