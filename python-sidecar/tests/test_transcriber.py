@@ -38,11 +38,15 @@ def write_wav_with_metadata(path: Path, pcm_data: bytes, sample_rate: int = 16_0
 
 class TranscriberWavTests(unittest.TestCase):
     def test_downloaded_model_path_override_is_used(self) -> None:
-        model_path = Path(tempfile.gettempdir()) / "tateclip-models" / "ggml-large-v3-turbo.bin"
-        with patch.dict(os.environ, {"VFOCUS_WHISPER_MODEL_PATH": str(model_path)}):
-            transcriber = Transcriber()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            model_path = Path(temp_dir) / "tateclip-models" / "ggml-large-v3-turbo.bin"
+            model_path.parent.mkdir()
+            model_path.touch()
+            with patch.dict(os.environ, {"VFOCUS_WHISPER_MODEL_PATH": str(model_path)}):
+                transcriber = Transcriber()
 
-        self.assertEqual(transcriber.model_path, str(model_path.resolve()))
+            self.assertTrue(Path(transcriber.model_path).is_absolute())
+            self.assertTrue(os.path.samefile(transcriber.model_path, model_path))
 
     def test_metadata_chunk_does_not_corrupt_duration_or_vad(self) -> None:
         sample_rate = 16_000
