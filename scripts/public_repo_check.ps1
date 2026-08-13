@@ -11,6 +11,41 @@ Set-Location $RootDir
 $Failures = [Collections.Generic.List[string]]::new()
 function Add-Failure([string]$Message) { $Failures.Add($Message) }
 
+function Get-NormalizedGitHubRepository([string]$RemoteUrl) {
+    try {
+        $Uri = [Uri]::new($RemoteUrl, [UriKind]::Absolute)
+    } catch {
+        return $null
+    }
+
+    if ($Uri.Scheme -ne 'https' -or
+        $Uri.Host -ne 'github.com' -or
+        -not $Uri.IsDefaultPort -or
+        $Uri.UserInfo -or
+        $Uri.Query -or
+        $Uri.Fragment) {
+        return $null
+    }
+
+    $RepositoryPath = $Uri.AbsolutePath.TrimEnd('/')
+    if ($RepositoryPath.Length -le 1 -or
+        -not $RepositoryPath.StartsWith('/') -or
+        $RepositoryPath.StartsWith('//')) {
+        return $null
+    }
+
+    $Repository = $RepositoryPath.Substring(1)
+    if ($Repository.EndsWith('.git', [StringComparison]::OrdinalIgnoreCase)) {
+        $Repository = $Repository.Substring(0, $Repository.Length - 4)
+    }
+
+    if (($Repository -split '/').Count -ne 2) {
+        return $null
+    }
+
+    return $Repository
+}
+
 foreach ($Required in @(
     "README.md",
     "LICENSE",
@@ -178,13 +213,42 @@ if ($InitialPublication) {
     foreach ($Object in $Unreachable) { Add-Failure "Initial public repository contains an unreachable old object: $Object" }
 }
 
-$RemoteUrl = (& git remote get-url origin 2>$null)
+$ExpectedRepository = 'YOSHOLabs/TateClip'
+if ($env:GITHUB_ACTIONS -eq 'true') {
+    $GitHubServerUrl = $null
+    try {
+        $GitHubServerUrl = [Uri]::new($env:GITHUB_SERVER_URL, [UriKind]::Absolute)
+    } catch {
+        Add-Failure 'GITHUB_SERVER_URL is missing or invalid in GitHub Actions.'
+    }
+
+    if ($GitHubServerUrl -and (
+        $GitHubServerUrl.Scheme -ne 'https' -or
+        $GitHubServerUrl.Host -ne 'github.com' -or
+        -not $GitHubServerUrl.IsDefaultPort -or
+        $GitHubServerUrl.UserInfo -or
+        $GitHubServerUrl.Query -or
+        $GitHubServerUrl.Fragment -or
+        $GitHubServerUrl.AbsolutePath.Trim('/')
+    )) {
+        Add-Failure 'GITHUB_SERVER_URL must identify https://github.com.'
+    }
+
+    if ($env:GITHUB_REPOSITORY -ine $ExpectedRepository) {
+        Add-Failure 'GITHUB_REPOSITORY must identify YOSHOLabs/TateClip.'
+    } else {
+        $ExpectedRepository = $env:GITHUB_REPOSITORY
+    }
+}
+
+$RemoteUrl = [string](& git remote get-url origin 2>$null)
 if (-not $RemoteUrl) {
     Add-Failure "Git remote 'origin' is not configured."
-} elseif ($RemoteUrl -ne 'https://github.com/YOSHOLabs/TateClip.git') {
-    Add-Failure "Git remote 'origin' must be https://github.com/YOSHOLabs/TateClip.git."
-} elseif ($RemoteUrl -match 'https://[^/@]+@') {
-    Add-Failure "Git remote URL contains user information or a token."
+} else {
+    $RemoteRepository = Get-NormalizedGitHubRepository $RemoteUrl
+    if (-not $RemoteRepository -or $RemoteRepository -ine $ExpectedRepository) {
+        Add-Failure "Git remote 'origin' must securely identify https://github.com/YOSHOLabs/TateClip."
+    }
 }
 
 if (-not $AllowDirty) {
