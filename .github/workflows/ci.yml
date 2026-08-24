@@ -57,10 +57,14 @@ jobs:
         run: ./scripts/public_repo_check.ps1
 
       - name: Audit dependencies
+        shell: pwsh
         run: |
           npm audit --audit-level=moderate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run audit:dependencies
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run audit:licenses
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Run TypeScript logic tests
         run: npm test
