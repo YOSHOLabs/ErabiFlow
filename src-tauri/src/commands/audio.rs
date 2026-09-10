@@ -382,19 +382,21 @@ pub async fn get_waveform_data(
 
     // ffprobeでオーディオトラック数を取得
     let mut stream_count = 1;
-    let ffprobe_cmd = std::process::Command::new("ffprobe")
-        .args([
-            "-v",
-            "error",
-            "-select_streams",
-            "a",
-            "-show_entries",
-            "stream=index",
-            "-of",
-            "csv=p=0",
-            &input_path,
-        ])
-        .output();
+    let mut ffprobe_command = std::process::Command::new("ffprobe");
+    ffprobe_command.args([
+        "-v",
+        "error",
+        "-select_streams",
+        "a",
+        "-show_entries",
+        "stream=index",
+        "-of",
+        "csv=p=0",
+        &input_path,
+    ]);
+    #[cfg(windows)]
+    ffprobe_command.creation_flags(0x0800_0000);
+    let ffprobe_cmd = ffprobe_command.output();
     if let Ok(output) = ffprobe_cmd {
         let stdout = String::from_utf8_lossy(&output.stdout);
         let count = stdout.lines().filter(|l| !l.trim().is_empty()).count();

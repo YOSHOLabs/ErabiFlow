@@ -387,6 +387,9 @@ impl DaemonProcess {
             .stderr(std::process::Stdio::piped())
             .kill_on_drop(true);
 
+        #[cfg(windows)]
+        cmd.creation_flags(0x0800_0000);
+
         if let Some(whisper_dir) = whisper_dir {
             cmd.env("VFOCUS_WHISPER_DIR", whisper_dir);
         }

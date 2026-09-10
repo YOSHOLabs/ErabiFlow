@@ -83,6 +83,8 @@ $PrivateEmailPattern = '\b[A-Z0-9._%+-]+@(?:gmail\.com|googlemail\.com|outlook\.
 $AllowedReleasePaths = @(
     'release/ffmpeg-source.json',
     'release/metadata.json',
+    'release/RELEASE_NOTES_0.1.0.md',
+    'release/SHA256SUMS.txt',
     'release/rustsec-allowed-warnings.json',
     'release/whisper-runtime.json'
 )

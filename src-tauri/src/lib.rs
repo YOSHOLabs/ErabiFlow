@@ -8,6 +8,7 @@
 mod atomic_file;
 mod commands;
 mod daemon;
+mod download_cancel;
 mod ffmpeg;
 mod ffmpeg_runtime;
 mod font;

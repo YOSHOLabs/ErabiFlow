@@ -23,7 +23,9 @@
       "allow": [
         { "url": "https://www.tiktok.com/*" },
         { "url": "https://www.instagram.com/*" },
-        { "url": "https://studio.youtube.com/*" }
+        { "url": "https://studio.youtube.com/*" },
+        { "url": "https://github.com/YOSHOLabs/ErabiFlow/issues*" },
+        { "url": "https://github.com/YOSHOLabs/ErabiFlow/releases*" }
       ]
     },
     "opener:allow-reveal-item-in-dir"

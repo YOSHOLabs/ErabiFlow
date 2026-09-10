@@ -1,6 +1,10 @@
-# ErabiFlowの既知の制限
+# ErabiFlow Beta — Version 0.1.0 の既知の制限
 
-この文書は、現在の実装を評価・利用する前に共有しておくべき制限をまとめたものです。GitHubでのソース公開と、将来の一般ユーザー向けbinary配布は別のrelease gateとして扱います。
+公式対象はWindows 11 x64です。Windows 10、Windows on ARM、Windows Server、32-bit、仮想デスクトップは未検証です。未署名によるSmartScreen警告の可能性、CPUでの文字起こし、初回約1.65GiBの取得、自動更新なしがこのBetaの制限です。
+
+NVIDIA、Premiere Proへの実インポート、別のクリーンPC、第三者1～3人の試用、proxy/firewall、disk-fullは未検証です。これらは既知のBetaリスクとして扱い、確認済みとは表現しません。
+
+この文書は、現在の実装を評価・利用する前に共有しておくべき制限をまとめたものです。GitHubでのsource公開と、一般ユーザー向けbinary配布は別のrelease gateとして扱います。
 
 ## AI解析
 
@@ -44,8 +48,9 @@
 
 ## 環境
 
-- まずWindows環境を優先します。
+- 一般配布候補の公式対象はWindows 11 x64です。Windows 10、ARM64、32-bit Windowsは未検証で、今回のsupport対象に含めません。
 - 一般配布用の軽量版は初回起動時に約140MiBの公式FFmpeg ZIP、初回のAI字幕利用時に約1.51GiBのモデル取得が必要です。どちらも途中中断と再開に対応します。
+- 一般配布版のwhisper.cppはCPU runtimeです。Vulkan/CUDA版は同梱しません。GPUは動画encodeと一部MediaPipe処理で利用できる場合があります。
 - FFmpegとモデル取得後の編集・AI解析は端末内で行います。完全にオフラインで導入する場合は社内・検証用フル版を使用します。
 - Tauriデスクトップ環境での動作が前提です。
 - ブラウザプレビューではAI解析や書き出しは完全には確認できません。

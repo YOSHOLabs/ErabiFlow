@@ -71,10 +71,11 @@ export function WhisperModelSetupCard({ model }: { model: WhisperModelController
                     <button
                         type="button"
                         onClick={() => void model.cancel()}
-                        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-amber-300/20 bg-amber-300/[0.06] text-[10px] font-semibold text-amber-100 hover:bg-amber-300/[0.1]"
+                        disabled={!model.canCancel}
+                        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-amber-300/20 bg-amber-300/[0.06] text-[10px] font-semibold text-amber-100 hover:bg-amber-300/[0.1] disabled:cursor-wait disabled:opacity-50"
                     >
-                        <Pause className="h-3.5 w-3.5" />
-                        中断する
+                        {model.canCancel ? <Pause className="h-3.5 w-3.5" /> : <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
+                        {model.canCancel ? "中断する" : "開始中..."}
                     </button>
                 ) : (
                     <button

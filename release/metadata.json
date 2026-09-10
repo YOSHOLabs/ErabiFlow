@@ -2,10 +2,11 @@
   "salesEnabled": false,
   "operatorDisplayName": "YOSHOLabs",
   "publisherLegalName": "YOSHOLabs",
-  "supportEmail": "support@example.invalid",
+  "supportEmail": "",
+  "supportUrl": "https://github.com/YOSHOLabs/ErabiFlow/issues",
   "publicSiteUrl": "",
   "privacyPolicyUrl": "",
   "termsUrl": "",
   "commerceDisclosureUrl": "",
-  "downloadUrl": ""
+  "downloadUrl": "https://github.com/YOSHOLabs/ErabiFlow/releases"
 }

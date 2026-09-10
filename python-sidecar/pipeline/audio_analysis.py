@@ -13,6 +13,8 @@ import subprocess
 import tempfile
 import wave
 
+from pipeline.subprocess_utils import no_window_creation_flags
+
 
 class AudioAnalyzer:
     """標準ライブラリ中心の軽量音声エネルギー解析"""
@@ -145,7 +147,14 @@ class AudioAnalyzer:
             "pcm_s16le",
             wav_path,
         ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        subprocess.run(
+            cmd,
+            check=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            creationflags=no_window_creation_flags(),
+        )
         return wav_path, wav_path
 
     def _read_pcm16_mono_wav(self, wav_path: str):

@@ -4,9 +4,8 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = (Resolve-Path (Join-Path $ScriptDir "..")).Path
 $ReleaseDir = Join-Path $RootDir "src-tauri\target-lite\release"
 $MsiDir = Join-Path $ReleaseDir "bundle\msi"
-$Msi = Get-ChildItem -LiteralPath $MsiDir -Filter "*_light.msi" -File -ErrorAction SilentlyContinue |
-    Sort-Object LastWriteTimeUtc -Descending |
-    Select-Object -First 1
+$Package = Get-Content -LiteralPath (Join-Path $RootDir "package.json") -Raw | ConvertFrom-Json
+$Msi = Get-Item -LiteralPath (Join-Path $MsiDir "ErabiFlow-$($Package.version)-x64.msi") -ErrorAction SilentlyContinue
 $App = Get-Item -LiteralPath (Join-Path $ReleaseDir "erabiflow.exe") -ErrorAction SilentlyContinue
 $Wix = Join-Path $ReleaseDir "wix\x64\main.wxs"
 $WhisperStage = Join-Path $ReleaseDir "whisper-cpp"
@@ -56,6 +55,11 @@ if (-not (Select-String -LiteralPath $Wix -Pattern "Apache-2.0.txt" -SimpleMatch
 if (-not (Select-String -LiteralPath $Wix -Pattern "DEPENDENCY_LICENSES.generated.txt" -SimpleMatch -Quiet)) {
     throw "Light MSI manifest is missing the generated dependency license bundle."
 }
+foreach ($distributionDocument in @("PRIVACY.md", "WINDOWS_DISTRIBUTION.md")) {
+    if (-not (Select-String -LiteralPath $Wix -Pattern $distributionDocument -SimpleMatch -Quiet)) {
+        throw "Light MSI manifest is missing $distributionDocument."
+    }
+}
 foreach ($runtimeLicense in @(
     "Python-LICENSE.txt",
     "PyInstaller-COPYING.txt",
@@ -80,12 +84,22 @@ foreach ($ffmpegName in @("ffmpeg-x86_64-pc-windows-msvc.exe", "ffmpeg.exe")) {
 $SourceFiles = @(
     Get-ChildItem -LiteralPath (Join-Path $RootDir "src") -Recurse -File
     Get-ChildItem -LiteralPath (Join-Path $RootDir "src-tauri\src") -Recurse -File
+    Get-ChildItem -LiteralPath (Join-Path $RootDir "src-tauri\capabilities") -Recurse -File
     Get-ChildItem -LiteralPath (Join-Path $RootDir "python-sidecar") -Recurse -File |
         Where-Object { $_.FullName -notmatch '\\(build|dist|__pycache__|whisper-cpp)\\' }
     Get-Item -LiteralPath (Join-Path $RootDir "src-tauri\Cargo.toml")
     Get-Item -LiteralPath (Join-Path $RootDir "src-tauri\Cargo.lock")
     Get-Item -LiteralPath (Join-Path $RootDir "src-tauri\tauri.conf.json")
     Get-Item -LiteralPath (Join-Path $RootDir "src-tauri\tauri.lite.conf.json")
+    Get-Item -LiteralPath (Join-Path $RootDir "src-tauri\tauri.production.conf.json")
+    Get-ChildItem -LiteralPath (Join-Path $RootDir "src-tauri\resources") -Recurse -File
+    Get-Item -LiteralPath (Join-Path $RootDir "docs\PRIVACY.md")
+    Get-Item -LiteralPath (Join-Path $RootDir "docs\WINDOWS_DISTRIBUTION.md")
+    Get-Item -LiteralPath (Join-Path $RootDir "release\metadata.json")
+    Get-Item -LiteralPath (Join-Path $RootDir "package.json")
+    Get-Item -LiteralPath (Join-Path $RootDir "package-lock.json")
+    Get-Item -LiteralPath (Join-Path $RootDir "scripts\build_public_lite.ps1")
+    Get-Item -LiteralPath (Join-Path $RootDir "scripts\name_light_msi.ps1")
     Get-Item -LiteralPath (Join-Path $RootDir "build_release_lite.bat")
 )
 $LatestSource = $SourceFiles | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
@@ -94,6 +108,15 @@ if ($App.LastWriteTimeUtc -lt $LatestSource.LastWriteTimeUtc -or $Msi.LastWriteT
 }
 
 $Hash = (Get-FileHash -LiteralPath $Msi.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+$ChecksumsPath = Join-Path $MsiDir "SHA256SUMS.txt"
+if (-not (Test-Path -LiteralPath $ChecksumsPath -PathType Leaf)) {
+    throw "Release checksum file is missing: $ChecksumsPath"
+}
+$ChecksumLines = @(Get-Content -LiteralPath $ChecksumsPath | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+$ExpectedChecksum = "$Hash  $($Msi.Name)"
+if ($ChecksumLines.Count -ne 1 -or $ChecksumLines[0] -cne $ExpectedChecksum) {
+    throw "Release checksum does not match the current MSI. Run .\build_release_lite.bat again."
+}
 Write-Host "LIGHT RELEASE: PASS" -ForegroundColor Green
 Write-Host ("MSI: {0} ({1:N2} MiB)" -f $Msi.FullName, ($Msi.Length / 1MB))
 Write-Host "SHA-256: $Hash"

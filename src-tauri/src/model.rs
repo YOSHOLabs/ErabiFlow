@@ -1,15 +1,16 @@
+use crate::download_cancel::DownloadCancellation;
 use futures_util::StreamExt;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::OnceLock;
 use std::time::Duration;
 use tauri::{Emitter, Manager};
 use tokio::io::AsyncWriteExt;
 use tokio::sync::Mutex;
+use tokio_util::sync::CancellationToken;
 
 pub const WHISPER_MODEL_FILE: &str = "ggml-large-v3-turbo.bin";
 pub const WHISPER_MODEL_URL: &str =
@@ -19,7 +20,7 @@ pub const WHISPER_MODEL_SHA256: &str =
     "1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69";
 
 static DOWNLOAD_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
-static CANCEL_DOWNLOAD: AtomicBool = AtomicBool::new(false);
+static DOWNLOAD_CANCELLATION: DownloadCancellation = DownloadCancellation::new();
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -124,6 +125,10 @@ fn file_len(path: &Path) -> u64 {
         .unwrap_or(0)
 }
 
+fn model_partial_needs_download(bytes: u64) -> bool {
+    bytes != WHISPER_MODEL_BYTES
+}
+
 fn ready_status(source: &str, message: &str) -> WhisperModelStatus {
     WhisperModelStatus {
         state: "ready".to_string(),
@@ -159,10 +164,20 @@ fn base_status(
 }
 
 fn hash_file(path: &Path) -> Result<String, String> {
+    hash_file_with_cancellation(path, None)
+}
+
+fn hash_file_with_cancellation(
+    path: &Path,
+    cancellation: Option<&CancellationToken>,
+) -> Result<String, String> {
     let mut file = File::open(path).map_err(|error| format!("AIモデルを開けません: {error}"))?;
     let mut hasher = Sha256::new();
     let mut buffer = vec![0_u8; 1024 * 1024];
     loop {
+        if cancellation.is_some_and(CancellationToken::is_cancelled) {
+            return Err("AIモデルの検証を中断しました".to_string());
+        }
         let read = file
             .read(&mut buffer)
             .map_err(|error| format!("AIモデルを検証できません: {error}"))?;
@@ -301,7 +316,7 @@ pub async fn download_whisper_model(app: tauri::AppHandle) -> Result<WhisperMode
     let _guard = model_download_lock()
         .try_lock()
         .map_err(|_| "字幕モデルは既に取得中です".to_string())?;
-    CANCEL_DOWNLOAD.store(false, Ordering::SeqCst);
+    let cancellation = DOWNLOAD_CANCELLATION.begin();
 
     let existing = current_status(&app, true).await?;
     if existing.state == "ready" {
@@ -328,87 +343,111 @@ pub async fn download_whisper_model(app: tauri::AppHandle) -> Result<WhisperMode
         start = 0;
     }
 
-    let client = reqwest::Client::builder()
-        .connect_timeout(Duration::from_secs(20))
-        .user_agent("ErabiFlow/0.1 model-downloader")
-        .build()
-        .map_err(|error| format!("AIモデル取得クライアントを作成できません: {error}"))?;
-    emit_progress(&app, "downloading", start, "字幕モデルを取得中...");
-    let mut request = client.get(WHISPER_MODEL_URL);
-    if start > 0 {
-        request = request.header(reqwest::header::RANGE, format!("bytes={start}-"));
-    }
-    let response = request
-        .send()
-        .await
-        .map_err(|error| format!("字幕モデルの取得を開始できません: {error}"))?;
-    let status = response.status();
-    let append = start > 0 && status == reqwest::StatusCode::PARTIAL_CONTENT;
-    if !status.is_success() {
-        return Err(format!("字幕モデル配布元がHTTP {status}を返しました"));
-    }
-    if start > 0 && !append {
-        start = 0;
-    }
+    // 受信完了後の検証中断ではexact-sizeの.partを残し、次回はHTTP Rangeを
+    // EOFから要求せず、そのままSHA-256検証を再開する。
+    let downloaded = if model_partial_needs_download(start) {
+        let client = reqwest::Client::builder()
+            .connect_timeout(Duration::from_secs(20))
+            .read_timeout(Duration::from_secs(60))
+            .user_agent("ErabiFlow/0.1 model-downloader")
+            .build()
+            .map_err(|error| format!("AIモデル取得クライアントを作成できません: {error}"))?;
+        emit_progress(&app, "downloading", start, "字幕モデルを取得中...");
+        let mut request = client.get(WHISPER_MODEL_URL);
+        if start > 0 {
+            request = request.header(reqwest::header::RANGE, format!("bytes={start}-"));
+        }
+        let response = tokio::select! {
+            _ = cancellation.token().cancelled() => {
+                emit_progress(
+                    &app,
+                    "paused",
+                    start,
+                    "取得を中断しました。次回は続きから再開できます。",
+                );
+                return Err("字幕モデルの取得を中断しました".to_string());
+            }
+            response = request.send() => response
+                .map_err(|error| format!("字幕モデルの取得を開始できません: {error}"))?,
+        };
+        let status = response.status();
+        let append = start > 0 && status == reqwest::StatusCode::PARTIAL_CONTENT;
+        if !status.is_success() {
+            return Err(format!("字幕モデル配布元がHTTP {status}を返しました"));
+        }
+        if start > 0 && !append {
+            start = 0;
+        }
 
-    let mut options = tokio::fs::OpenOptions::new();
-    options.create(true).write(true);
-    if append {
-        options.append(true);
-    } else {
-        options.truncate(true);
-    }
-    let mut file = options
-        .open(&partial_path)
-        .await
-        .map_err(|error| format!("AIモデル一時ファイルを開けません: {error}"))?;
-    let mut downloaded = start;
-    let mut last_emitted = start;
-    let mut stream = response.bytes_stream();
-    while let Some(chunk) = stream.next().await {
-        if CANCEL_DOWNLOAD.load(Ordering::SeqCst) {
-            file.flush().await.ok();
+        let mut options = tokio::fs::OpenOptions::new();
+        options.create(true).write(true);
+        if append {
+            options.append(true);
+        } else {
+            options.truncate(true);
+        }
+        let mut file = options
+            .open(&partial_path)
+            .await
+            .map_err(|error| format!("AIモデル一時ファイルを開けません: {error}"))?;
+        let mut downloaded = start;
+        let mut last_emitted = start;
+        let mut stream = response.bytes_stream();
+        loop {
+            let next_chunk = tokio::select! {
+                _ = cancellation.token().cancelled() => {
+                    file.flush().await.ok();
+                    emit_progress(
+                        &app,
+                        "paused",
+                        downloaded,
+                        "取得を中断しました。次回は続きから再開できます。",
+                    );
+                    return Err("字幕モデルの取得を中断しました".to_string());
+                }
+                next = stream.next() => next,
+            };
+            let Some(chunk) = next_chunk else {
+                break;
+            };
+            let chunk =
+                chunk.map_err(|error| format!("字幕モデルの受信に失敗しました: {error}"))?;
+            downloaded = downloaded.saturating_add(chunk.len() as u64);
+            if downloaded > WHISPER_MODEL_BYTES {
+                drop(file);
+                let _ = tokio::fs::remove_file(&partial_path).await;
+                return Err("字幕モデルの受信サイズが公式値を超えました".to_string());
+            }
+            file.write_all(&chunk)
+                .await
+                .map_err(|error| format!("字幕モデルを保存できません: {error}"))?;
+            if downloaded.saturating_sub(last_emitted) >= 2 * 1024 * 1024
+                || downloaded == WHISPER_MODEL_BYTES
+            {
+                emit_progress(&app, "downloading", downloaded, "字幕モデルを取得中...");
+                last_emitted = downloaded;
+            }
+        }
+        file.flush()
+            .await
+            .map_err(|error| format!("字幕モデルを保存できません: {error}"))?;
+        drop(file);
+
+        if downloaded != WHISPER_MODEL_BYTES {
             emit_progress(
                 &app,
                 "paused",
                 downloaded,
-                "取得を中断しました。次回は続きから再開できます。",
+                "取得が途中で終了しました。再実行すると続きから再開します。",
             );
-            return Err("字幕モデルの取得を中断しました".to_string());
+            return Err(format!(
+                "字幕モデルが途中までしか取得できませんでした ({downloaded}/{WHISPER_MODEL_BYTES} bytes)"
+            ));
         }
-        let chunk = chunk.map_err(|error| format!("字幕モデルの受信に失敗しました: {error}"))?;
-        downloaded = downloaded.saturating_add(chunk.len() as u64);
-        if downloaded > WHISPER_MODEL_BYTES {
-            drop(file);
-            let _ = tokio::fs::remove_file(&partial_path).await;
-            return Err("字幕モデルの受信サイズが公式値を超えました".to_string());
-        }
-        file.write_all(&chunk)
-            .await
-            .map_err(|error| format!("字幕モデルを保存できません: {error}"))?;
-        if downloaded.saturating_sub(last_emitted) >= 2 * 1024 * 1024
-            || downloaded == WHISPER_MODEL_BYTES
-        {
-            emit_progress(&app, "downloading", downloaded, "字幕モデルを取得中...");
-            last_emitted = downloaded;
-        }
-    }
-    file.flush()
-        .await
-        .map_err(|error| format!("字幕モデルを保存できません: {error}"))?;
-    drop(file);
-
-    if downloaded != WHISPER_MODEL_BYTES {
-        emit_progress(
-            &app,
-            "paused",
-            downloaded,
-            "取得が途中で終了しました。再実行すると続きから再開します。",
-        );
-        return Err(format!(
-            "字幕モデルが途中までしか取得できませんでした ({downloaded}/{WHISPER_MODEL_BYTES} bytes)"
-        ));
-    }
+        downloaded
+    } else {
+        start
+    };
 
     emit_progress(
         &app,
@@ -417,9 +456,22 @@ pub async fn download_whisper_model(app: tauri::AppHandle) -> Result<WhisperMode
         "字幕モデルのSHA-256を検証中...",
     );
     let verify_path = partial_path.clone();
-    let hash = tokio::task::spawn_blocking(move || hash_file(&verify_path))
-        .await
-        .map_err(|error| format!("AIモデル検証タスクが失敗しました: {error}"))??;
+    let verify_cancellation = cancellation.token().clone();
+    let hash_result = tokio::task::spawn_blocking(move || {
+        hash_file_with_cancellation(&verify_path, Some(&verify_cancellation))
+    })
+    .await
+    .map_err(|error| format!("AIモデル検証タスクが失敗しました: {error}"))?;
+    if cancellation.token().is_cancelled() {
+        emit_progress(
+            &app,
+            "paused",
+            downloaded,
+            "検証を中断しました。次回は検証から再開します。",
+        );
+        return Err("字幕モデルの検証を中断しました".to_string());
+    }
+    let hash = hash_result?;
     if hash != WHISPER_MODEL_SHA256 {
         let _ = tokio::fs::remove_file(&partial_path).await;
         emit_progress(
@@ -451,7 +503,7 @@ pub async fn download_whisper_model(app: tauri::AppHandle) -> Result<WhisperMode
 
 #[tauri::command]
 pub async fn cancel_whisper_model_download() -> Result<(), String> {
-    CANCEL_DOWNLOAD.store(true, Ordering::SeqCst);
+    DOWNLOAD_CANCELLATION.cancel();
     Ok(())
 }
 
@@ -459,7 +511,7 @@ pub async fn cancel_whisper_model_download() -> Result<(), String> {
 pub async fn remove_downloaded_whisper_model(
     app: tauri::AppHandle,
 ) -> Result<WhisperModelStatus, String> {
-    CANCEL_DOWNLOAD.store(true, Ordering::SeqCst);
+    DOWNLOAD_CANCELLATION.cancel();
     let _guard = model_download_lock().lock().await;
     if valid_bundled_model_path(&app).is_some() {
         return Err("同梱版の字幕モデルはアプリのアンインストールで削除してください".to_string());
@@ -516,5 +568,30 @@ mod tests {
             result,
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
         );
+    }
+
+    #[test]
+    fn sha256_verification_observes_cancellation() {
+        let path = std::env::temp_dir().join(format!(
+            "erabiflow-model-cancel-{}-{}.bin",
+            std::process::id(),
+            uuid::Uuid::new_v4()
+        ));
+        std::fs::write(&path, b"abc").expect("write cancellation fixture");
+        let cancellation = CancellationToken::new();
+        cancellation.cancel();
+
+        let result = hash_file_with_cancellation(&path, Some(&cancellation));
+
+        let _ = std::fs::remove_file(&path);
+        assert!(result
+            .expect_err("cancelled verification must fail")
+            .contains("中断"));
+    }
+
+    #[test]
+    fn complete_partial_skips_http_resume_and_restarts_verification() {
+        assert!(model_partial_needs_download(WHISPER_MODEL_BYTES - 1));
+        assert!(!model_partial_needs_download(WHISPER_MODEL_BYTES));
     }
 }

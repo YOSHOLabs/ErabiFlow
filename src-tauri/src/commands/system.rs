@@ -1,4 +1,7 @@
 //! commands/system.rs — システム関連の Tauri コマンド
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
+
 /// 搭載GPUを判定する (NVIDIA / AMD / CPU)
 #[tauri::command]
 pub async fn detect_gpu() -> Result<String, String> {
@@ -10,6 +13,7 @@ pub async fn detect_gpu() -> Result<String, String> {
                 "-Command",
                 "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name",
             ])
+            .creation_flags(0x0800_0000)
             .output();
 
         if let Ok(output) = result {

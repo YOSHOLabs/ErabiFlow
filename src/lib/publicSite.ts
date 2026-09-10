@@ -1,6 +1,7 @@
 import { openUrl } from "@tauri-apps/plugin-opener"
 import { isTauriEnv } from "./utils"
 import { buildPublicSiteUrl } from "./publicSiteUrl"
+import { getConfiguredReleaseUrl, type ReleaseLinkKind } from "./releaseLinks"
 import releaseMetadata from "../../release/metadata.json"
 
 export { buildPublicSiteUrl } from "./publicSiteUrl"
@@ -34,4 +35,17 @@ export async function openPublicSitePath(path: string): Promise<boolean> {
 
     const opened = window.open(url, "_blank", "noopener,noreferrer")
     return opened !== null
+}
+
+/** release metadataで確定し、GitHub repository配下へ固定したURLだけを開く。 */
+export async function openReleaseUrl(kind: ReleaseLinkKind): Promise<boolean> {
+    const url = getConfiguredReleaseUrl(kind)
+    if (!url) return false
+
+    if (isTauriEnv()) {
+        await openUrl(url)
+        return true
+    }
+
+    return window.open(url, "_blank", "noopener,noreferrer") !== null
 }

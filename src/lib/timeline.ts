@@ -330,7 +330,7 @@ export function subtitlesToSequence(
             emotion: "neutral",
             ...(subtitle.styleOverride ? { styleOverride: subtitle.styleOverride } : {}),
         }))
-    )
+    ).sort((a, b) => a.startTime - b.startTime || a.endTime - b.endTime)
 }
 
 /** 無音区間を除外した、元動画順の編集クリップ列を作る。 */

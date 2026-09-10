@@ -37,6 +37,8 @@ def _run_ffmpeg_probe(video_path: str) -> str:
         stdin=subprocess.DEVNULL,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=FFPROBE_TIMEOUT_SEC,
         creationflags=_subprocess_creationflags(),
     )
@@ -156,7 +158,7 @@ class Chunker:
         try:
             if os.environ.get("VFOCUS_FFMPEG_PATH") and not os.environ.get("VFOCUS_FFPROBE_PATH"):
                 probe_text = _run_ffmpeg_probe(video_path)
-                return max(1, len(re.findall(r"Stream #\d+:\d+[^\n]*Audio:", probe_text)))
+                return len(re.findall(r"Stream #\d+:\d+[^\n]*Audio:", probe_text))
 
             res = subprocess.run(
                 cmd,
@@ -205,9 +207,21 @@ class Chunker:
 
         stream_count = self._get_audio_stream_count(video_path)
         self._stream_count = stream_count
+
+        if stream_count == 0:
+            self._voice_tracks = []
+            self._game_tracks = []
+            self._track_stats = []
+            print("  [トラック判別] 音声トラックなし", file=sys.stderr)
+            return {
+                'voice_tracks': [],
+                'game_tracks': [],
+                'stream_count': 0,
+                'track_stats': [],
+            }
         
         # トラックが1つだけなら判別不要
-        if stream_count <= 1:
+        if stream_count == 1:
             self._voice_tracks = [0]
             self._game_tracks = []
             self._track_stats = [{
@@ -410,6 +424,43 @@ class Chunker:
 
         return output_path
 
+    @staticmethod
+    def _create_silent_audio(
+        chunk: dict,
+        output_dir: str,
+        sample_rate: int,
+    ) -> str:
+        """音声トラックがない動画用に、同じ長さの無音WAVを生成する。"""
+        import uuid
+
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(
+            output_dir,
+            f"chunk_{uuid.uuid4().hex[:8]}_{chunk['index']:03d}_silent.wav",
+        )
+        duration = max(0.0, float(chunk['end_time']) - float(chunk['start_time']))
+        remaining_frames = max(1, int(round(duration * sample_rate)))
+        silence_block = b"\x00\x00" * min(sample_rate, remaining_frames)
+
+        try:
+            with wave.open(output_path, "wb") as wav_file:
+                wav_file.setnchannels(1)
+                wav_file.setsampwidth(2)
+                wav_file.setframerate(sample_rate)
+                while remaining_frames > 0:
+                    block_frames = min(remaining_frames, len(silence_block) // 2)
+                    wav_file.writeframesraw(silence_block[:block_frames * 2])
+                    remaining_frames -= block_frames
+        except Exception:
+            try:
+                if os.path.exists(output_path):
+                    os.remove(output_path)
+            except OSError:
+                pass
+            raise
+
+        return output_path
+
     def extract_chunk_audio(
         self,
         video_path: str,
@@ -432,9 +483,12 @@ class Chunker:
             出力WAVファイルのパス
         """
         stream_count = self._stream_count if self._stream_count is not None else self._get_audio_stream_count(video_path)
+
+        if stream_count == 0:
+            return self._create_silent_audio(chunk, output_dir, sample_rate)
         
         # トラックが1本のみの場合はそのまま抽出
-        if stream_count <= 1:
+        if stream_count == 1:
             return self._extract_tracks(video_path, chunk, output_dir, [0], sample_rate)
         
         # トラック判別結果に基づいて抽出対象を決定

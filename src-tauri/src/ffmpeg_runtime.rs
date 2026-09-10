@@ -1,3 +1,4 @@
+use crate::download_cancel::DownloadCancellation;
 use futures_util::StreamExt;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -5,13 +6,13 @@ use std::fs::File;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::OnceLock;
 use std::time::Duration;
 use tauri::{Emitter, Manager};
 use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use tokio::sync::Mutex;
+use tokio_util::sync::CancellationToken;
 
 pub const FFMPEG_ARCHIVE_FILE: &str = "ffmpeg-N-125365-g9a01c1cb6a-win64-lgpl.zip";
 pub const FFMPEG_ARCHIVE_URL: &str = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-06-30-13-34/ffmpeg-N-125365-g9a01c1cb6a-win64-lgpl.zip";
@@ -26,7 +27,7 @@ pub const FFMPEG_EXE_SHA256: &str =
     "b1ebb2a19864de271d8539cc15934ff31719d184d3cbbcdb50dd16d68aa5db64";
 
 static DOWNLOAD_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
-static CANCEL_DOWNLOAD: AtomicBool = AtomicBool::new(false);
+static DOWNLOAD_CANCELLATION: DownloadCancellation = DownloadCancellation::new();
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -194,10 +195,21 @@ where
 }
 
 fn hash_file(path: &Path, label: &str) -> Result<String, String> {
+    hash_file_with_cancellation(path, label, None)
+}
+
+fn hash_file_with_cancellation(
+    path: &Path,
+    label: &str,
+    cancellation: Option<&CancellationToken>,
+) -> Result<String, String> {
     let mut file = File::open(path).map_err(|error| format!("{label}を開けません: {error}"))?;
     let mut hasher = Sha256::new();
     let mut buffer = vec![0_u8; 1024 * 1024];
     loop {
+        if cancellation.is_some_and(CancellationToken::is_cancelled) {
+            return Err(format!("{label}の検証を中断しました"));
+        }
         let read = file
             .read(&mut buffer)
             .map_err(|error| format!("{label}を検証できません: {error}"))?;
@@ -329,11 +341,28 @@ fn emit_progress(app: &tauri::AppHandle, state: &str, downloaded: u64, message: 
     );
 }
 
+#[cfg(test)]
 fn extract_archive_entry(
     archive_path: &Path,
     output_path: &Path,
     entry_name: &str,
     expected_bytes: u64,
+) -> Result<(), String> {
+    extract_archive_entry_with_cancellation(
+        archive_path,
+        output_path,
+        entry_name,
+        expected_bytes,
+        None,
+    )
+}
+
+fn extract_archive_entry_with_cancellation(
+    archive_path: &Path,
+    output_path: &Path,
+    entry_name: &str,
+    expected_bytes: u64,
+    cancellation: Option<&CancellationToken>,
 ) -> Result<(), String> {
     let archive_file =
         File::open(archive_path).map_err(|error| format!("FFmpeg公式ZIPを開けません: {error}"))?;
@@ -350,8 +379,28 @@ fn extract_archive_entry(
     }
     let mut output = File::create(output_path)
         .map_err(|error| format!("FFmpeg実行ファイルを作成できません: {error}"))?;
-    std::io::copy(&mut entry, &mut output)
-        .map_err(|error| format!("FFmpeg実行ファイルを展開できません: {error}"))?;
+    let mut copied = 0_u64;
+    let mut buffer = vec![0_u8; 1024 * 1024];
+    loop {
+        if cancellation.is_some_and(CancellationToken::is_cancelled) {
+            return Err("FFmpeg実行ファイルの展開を中断しました".to_string());
+        }
+        let read = entry
+            .read(&mut buffer)
+            .map_err(|error| format!("FFmpeg実行ファイルを展開できません: {error}"))?;
+        if read == 0 {
+            break;
+        }
+        output
+            .write_all(&buffer[..read])
+            .map_err(|error| format!("FFmpeg実行ファイルを展開できません: {error}"))?;
+        copied = copied.saturating_add(read as u64);
+    }
+    if copied != expected_bytes {
+        return Err(format!(
+            "FFmpeg実行ファイルの展開サイズが公式値と一致しません: {copied} bytes"
+        ));
+    }
     output
         .flush()
         .map_err(|error| format!("FFmpeg実行ファイルを保存できません: {error}"))?;
@@ -359,15 +408,6 @@ fn extract_archive_entry(
         .sync_all()
         .map_err(|error| format!("FFmpeg実行ファイルを確定できません: {error}"))?;
     Ok(())
-}
-
-fn extract_executable(archive_path: &Path, output_path: &Path) -> Result<(), String> {
-    extract_archive_entry(
-        archive_path,
-        output_path,
-        FFMPEG_ARCHIVE_ENTRY,
-        FFMPEG_EXE_BYTES,
-    )
 }
 
 #[tauri::command]
@@ -382,7 +422,7 @@ pub async fn download_ffmpeg_runtime(app: tauri::AppHandle) -> Result<FfmpegRunt
     let _guard = download_lock()
         .try_lock()
         .map_err(|_| "動画エンジンは既に取得中です".to_string())?;
-    CANCEL_DOWNLOAD.store(false, Ordering::SeqCst);
+    let cancellation = DOWNLOAD_CANCELLATION.begin();
 
     let existing = current_status(&app, true).await?;
     if existing.state == "ready" {
@@ -420,6 +460,7 @@ pub async fn download_ffmpeg_runtime(app: tauri::AppHandle) -> Result<FfmpegRunt
     } else {
         let client = reqwest::Client::builder()
             .connect_timeout(Duration::from_secs(20))
+            .read_timeout(Duration::from_secs(60))
             .user_agent("ErabiFlow/0.1 ffmpeg-downloader")
             .build()
             .map_err(|error| format!("動画エンジン取得クライアントを作成できません: {error}"))?;
@@ -433,10 +474,19 @@ pub async fn download_ffmpeg_runtime(app: tauri::AppHandle) -> Result<FfmpegRunt
         if start > 0 {
             request = request.header(reqwest::header::RANGE, format!("bytes={start}-"));
         }
-        let response = request
-            .send()
-            .await
-            .map_err(|error| format!("動画エンジンの取得を開始できません: {error}"))?;
+        let response = tokio::select! {
+            _ = cancellation.token().cancelled() => {
+                emit_progress(
+                    &app,
+                    "paused",
+                    start,
+                    "取得を中断しました。次回は続きから再開できます。",
+                );
+                return Err("動画エンジンの取得を中断しました".to_string());
+            }
+            response = request.send() => response
+                .map_err(|error| format!("動画エンジンの取得を開始できません: {error}"))?,
+        };
         let status = response.status();
         let append = start > 0 && status == reqwest::StatusCode::PARTIAL_CONTENT;
         if !status.is_success() {
@@ -459,17 +509,23 @@ pub async fn download_ffmpeg_runtime(app: tauri::AppHandle) -> Result<FfmpegRunt
         let mut downloaded = start;
         let mut last_emitted = start;
         let mut stream = response.bytes_stream();
-        while let Some(chunk) = stream.next().await {
-            if CANCEL_DOWNLOAD.load(Ordering::SeqCst) {
-                file.flush().await.ok();
-                emit_progress(
-                    &app,
-                    "paused",
-                    downloaded,
-                    "取得を中断しました。次回は続きから再開できます。",
-                );
-                return Err("動画エンジンの取得を中断しました".to_string());
-            }
+        loop {
+            let next_chunk = tokio::select! {
+                _ = cancellation.token().cancelled() => {
+                    file.flush().await.ok();
+                    emit_progress(
+                        &app,
+                        "paused",
+                        downloaded,
+                        "取得を中断しました。次回は続きから再開できます。",
+                    );
+                    return Err("動画エンジンの取得を中断しました".to_string());
+                }
+                next = stream.next() => next,
+            };
+            let Some(chunk) = next_chunk else {
+                break;
+            };
             let chunk =
                 chunk.map_err(|error| format!("動画エンジンの受信に失敗しました: {error}"))?;
             downloaded = downloaded.saturating_add(chunk.len() as u64);
@@ -514,10 +570,26 @@ pub async fn download_ffmpeg_runtime(app: tauri::AppHandle) -> Result<FfmpegRunt
 
     emit_progress(&app, "verifying", downloaded, "公式ZIPのSHA-256を検証中...");
     let archive_for_hash = partial_archive.clone();
-    let archive_hash =
-        tokio::task::spawn_blocking(move || hash_file(&archive_for_hash, "FFmpeg公式ZIP"))
-            .await
-            .map_err(|error| format!("FFmpeg ZIP検証タスクが失敗しました: {error}"))??;
+    let archive_hash_cancellation = cancellation.token().clone();
+    let archive_hash_result = tokio::task::spawn_blocking(move || {
+        hash_file_with_cancellation(
+            &archive_for_hash,
+            "FFmpeg公式ZIP",
+            Some(&archive_hash_cancellation),
+        )
+    })
+    .await
+    .map_err(|error| format!("FFmpeg ZIP検証タスクが失敗しました: {error}"))?;
+    if cancellation.token().is_cancelled() {
+        emit_progress(
+            &app,
+            "paused",
+            downloaded,
+            "検証を中断しました。次回は検証から再開します。",
+        );
+        return Err("動画エンジンの検証を中断しました".to_string());
+    }
+    let archive_hash = archive_hash_result?;
     if archive_hash != FFMPEG_ARCHIVE_SHA256 {
         let _ = tokio::fs::remove_file(&partial_archive).await;
         emit_progress(&app, "corrupt", 0, "SHA-256が一致しないZIPを削除しました。");
@@ -534,16 +606,54 @@ pub async fn download_ffmpeg_runtime(app: tauri::AppHandle) -> Result<FfmpegRunt
     );
     let archive_for_extract = partial_archive.clone();
     let executable_for_extract = partial_executable.clone();
-    tokio::task::spawn_blocking(move || {
-        extract_executable(&archive_for_extract, &executable_for_extract)
+    let extract_cancellation = cancellation.token().clone();
+    let extract_result = tokio::task::spawn_blocking(move || {
+        extract_archive_entry_with_cancellation(
+            &archive_for_extract,
+            &executable_for_extract,
+            FFMPEG_ARCHIVE_ENTRY,
+            FFMPEG_EXE_BYTES,
+            Some(&extract_cancellation),
+        )
     })
     .await
-    .map_err(|error| format!("FFmpeg展開タスクが失敗しました: {error}"))??;
+    .map_err(|error| format!("FFmpeg展開タスクが失敗しました: {error}"))?;
+    if cancellation.token().is_cancelled() {
+        let _ = tokio::fs::remove_file(&partial_executable).await;
+        emit_progress(
+            &app,
+            "paused",
+            downloaded,
+            "展開を中断しました。次回は検証から再開します。",
+        );
+        return Err("動画エンジンの展開を中断しました".to_string());
+    }
+    if let Err(error) = extract_result {
+        let _ = tokio::fs::remove_file(&partial_executable).await;
+        return Err(error);
+    }
     let executable_for_hash = partial_executable.clone();
-    let executable_hash =
-        tokio::task::spawn_blocking(move || hash_file(&executable_for_hash, "FFmpeg"))
-            .await
-            .map_err(|error| format!("FFmpeg検証タスクが失敗しました: {error}"))??;
+    let executable_hash_cancellation = cancellation.token().clone();
+    let executable_hash_result = tokio::task::spawn_blocking(move || {
+        hash_file_with_cancellation(
+            &executable_for_hash,
+            "FFmpeg",
+            Some(&executable_hash_cancellation),
+        )
+    })
+    .await
+    .map_err(|error| format!("FFmpeg検証タスクが失敗しました: {error}"))?;
+    if cancellation.token().is_cancelled() {
+        let _ = tokio::fs::remove_file(&partial_executable).await;
+        emit_progress(
+            &app,
+            "paused",
+            downloaded,
+            "展開後の検証を中断しました。次回は検証から再開します。",
+        );
+        return Err("動画エンジンの検証を中断しました".to_string());
+    }
+    let executable_hash = executable_hash_result?;
     if file_len(&partial_executable) != FFMPEG_EXE_BYTES || executable_hash != FFMPEG_EXE_SHA256 {
         let _ = tokio::fs::remove_file(&partial_archive).await;
         let _ = tokio::fs::remove_file(&partial_executable).await;
@@ -576,7 +686,7 @@ pub async fn download_ffmpeg_runtime(app: tauri::AppHandle) -> Result<FfmpegRunt
 
 #[tauri::command]
 pub async fn cancel_ffmpeg_runtime_download() -> Result<(), String> {
-    CANCEL_DOWNLOAD.store(true, Ordering::SeqCst);
+    DOWNLOAD_CANCELLATION.cancel();
     Ok(())
 }
 
@@ -584,7 +694,7 @@ pub async fn cancel_ffmpeg_runtime_download() -> Result<(), String> {
 pub async fn remove_downloaded_ffmpeg_runtime(
     app: tauri::AppHandle,
 ) -> Result<FfmpegRuntimeStatus, String> {
-    CANCEL_DOWNLOAD.store(true, Ordering::SeqCst);
+    DOWNLOAD_CANCELLATION.cancel();
     let _guard = download_lock().lock().await;
     if bundled_executable_path(&app)
         .filter(|path| file_len(path) == FFMPEG_EXE_BYTES)
@@ -655,6 +765,44 @@ mod tests {
         assert_eq!(std::fs::read(&output_path).expect("read output"), payload);
 
         std::fs::remove_file(&output_path).expect("remove output");
+        std::fs::remove_file(&archive_path).expect("remove archive");
+        std::fs::remove_dir(&directory).expect("remove fixture directory");
+    }
+
+    #[test]
+    fn archive_extraction_observes_cancellation() {
+        let directory =
+            std::env::temp_dir().join(format!("vfocus-ffmpeg-cancel-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir(&directory).expect("create fixture directory");
+        let archive_path = directory.join("fixture.zip");
+        let output_path = directory.join("ffmpeg.exe.part");
+        let payload = b"verified-ffmpeg-fixture";
+
+        let archive_file = File::create(&archive_path).expect("create fixture archive");
+        let mut writer = zip::ZipWriter::new(archive_file);
+        writer
+            .start_file(
+                "fixed/bin/ffmpeg.exe",
+                SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated),
+            )
+            .expect("start fixture entry");
+        writer.write_all(payload).expect("write fixture entry");
+        writer.finish().expect("finish fixture archive");
+        let cancellation = CancellationToken::new();
+        cancellation.cancel();
+
+        let result = extract_archive_entry_with_cancellation(
+            &archive_path,
+            &output_path,
+            "fixed/bin/ffmpeg.exe",
+            payload.len() as u64,
+            Some(&cancellation),
+        );
+
+        assert!(result
+            .expect_err("cancelled extraction must fail")
+            .contains("中断"));
+        let _ = std::fs::remove_file(&output_path);
         std::fs::remove_file(&archive_path).expect("remove archive");
         std::fs::remove_dir(&directory).expect("remove fixture directory");
     }

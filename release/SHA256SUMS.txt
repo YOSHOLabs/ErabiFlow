@@ -1,0 +1,1 @@
+# The verified MSI build writes SHA256SUMS.txt beside the MSI. Do not use any previous checksum.

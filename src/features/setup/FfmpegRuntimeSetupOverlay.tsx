@@ -92,10 +92,11 @@ export function FfmpegRuntimeSetupOverlay({ runtime }: { runtime: FfmpegRuntimeC
                                 <button
                                     type="button"
                                     onClick={() => void runtime.cancel()}
-                                    className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-amber-300/20 bg-amber-300/[0.06] text-[11px] font-semibold text-amber-100 hover:bg-amber-300/[0.1]"
+                                    disabled={!runtime.canCancel}
+                                    className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-amber-300/20 bg-amber-300/[0.06] text-[11px] font-semibold text-amber-100 hover:bg-amber-300/[0.1] disabled:cursor-wait disabled:opacity-50"
                                 >
-                                    <Pause className="h-4 w-4" />
-                                    中断する
+                                    {runtime.canCancel ? <Pause className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
+                                    {runtime.canCancel ? "中断する" : "開始中..."}
                                 </button>
                             ) : (
                                 <button

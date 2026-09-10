@@ -19,6 +19,7 @@ import wave
 from typing import Optional, Callable, List, Tuple
 
 from pipeline.game_glossary import apply_scoped_corrections, contains_glossary_term
+from pipeline.subprocess_utils import no_window_creation_flags
 
 
 class Transcriber:
@@ -1108,6 +1109,7 @@ class Transcriber:
                 encoding='utf-8',
                 errors='replace',
                 env=env,
+                creationflags=no_window_creation_flags(),
             )
 
             try:

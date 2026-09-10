@@ -1,6 +1,7 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 import {
+    canCancelDownloadJob,
     clampJobProgress,
     createBackgroundJob,
     didBatchStopBeforeCompletion,
@@ -24,6 +25,22 @@ test("background jobを決定的なIDと時刻で開始できる", () => {
     assert.equal(job.startedAt, "2026-07-29T00:00:00.000Z")
     assert.equal(job.blocksProjectChange, true)
     assert.equal(isActiveBackgroundJob(job), true)
+})
+
+test("download中断はbackend progress受信後だけ有効になる", () => {
+    const preparing = createBackgroundJob({
+        kind: "whisper-download",
+        label: "字幕モデル",
+        makeId: () => "download-1",
+    })
+    assert.equal(canCancelDownloadJob(preparing), false)
+
+    const active = patchBackgroundJob(preparing, {
+        phase: "downloading",
+        metrics: { state: "downloading" },
+    })
+    assert.equal(canCancelDownloadJob(active), true)
+    assert.equal(canCancelDownloadJob(patchBackgroundJob(active, { status: "cancelling" })), false)
 })
 
 test("進捗を0〜100へ正規化しmetricsを差分更新する", () => {

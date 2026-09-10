@@ -16,7 +16,7 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') {
 
 $MsiDir = [IO.Path]::GetFullPath((Join-Path $RootDir "src-tauri\target-lite\release\bundle\msi"))
 $Source = [IO.Path]::GetFullPath((Join-Path $MsiDir "ErabiFlow_${Version}_x64_ja-JP.msi"))
-$Destination = [IO.Path]::GetFullPath((Join-Path $MsiDir "ErabiFlow_${Version}_x64_ja-JP_light.msi"))
+$Destination = [IO.Path]::GetFullPath((Join-Path $MsiDir "ErabiFlow-${Version}-x64.msi"))
 $SourceSignature = "$Source.sig"
 $DestinationSignature = "$Destination.sig"
 
@@ -38,4 +38,9 @@ if (Test-Path -LiteralPath $SourceSignature -PathType Leaf) {
     }
     Move-Item -LiteralPath $SourceSignature -Destination $DestinationSignature
 }
-Write-Host "Light MSI: $Destination"
+$Hash = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash.ToLowerInvariant()
+$ChecksumsPath = Join-Path $MsiDir "SHA256SUMS.txt"
+$Utf8NoBom = [Text.UTF8Encoding]::new($false)
+[IO.File]::WriteAllText($ChecksumsPath, "$Hash  $([IO.Path]::GetFileName($Destination))`n", $Utf8NoBom)
+Write-Host "Public MSI: $Destination"
+Write-Host "SHA-256: $Hash"

@@ -97,6 +97,11 @@ export function isActiveBackgroundJob(job: BackgroundJob | undefined): boolean {
     return job?.status === "running" || job?.status === "cancelling"
 }
 
+/** Backend側でcancellation tokenが有効になったprogressを受け取るまでは中断させない。 */
+export function canCancelDownloadJob(job: BackgroundJob | undefined): boolean {
+    return job?.status === "running" && typeof job.metrics.state === "string"
+}
+
 export function hasBlockingBackgroundJob(
     jobs: Partial<Record<BackgroundJobKind, BackgroundJob>>,
 ): boolean {

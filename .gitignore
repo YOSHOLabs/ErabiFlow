@@ -46,6 +46,7 @@
 !/src-tauri/binaries/gemma_daemon-x86_64-pc-windows-msvc/.gitkeep
 /src-tauri/resources/licenses/DEPENDENCY_LICENSES.generated.txt
 /release/signoff.local.json
+/release/candidate.local.json
 /release/rough-cut-smoke.local.json
 /release/msi-admin-smoke.local.json
 /release/desktop-daemon-smoke.local.json

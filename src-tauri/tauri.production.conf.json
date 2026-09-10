@@ -4,11 +4,16 @@
   "identifier": "com.yosholabs.erabiflow",
   "bundle": {
     "targets": "msi",
-    "createUpdaterArtifacts": true,
+    "createUpdaterArtifacts": false,
     "externalBin": [
       "binaries/ffmpeg"
     ],
     "windows": {
+      "allowDowngrades": false,
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
       "wix": {
         "language": "ja-JP",
         "upgradeCode": "92a6d8f9-c8ab-459e-a6db-6f27376dc45b"
@@ -18,14 +23,17 @@
       "binaries/gemma_daemon-x86_64-pc-windows-msvc/": "gemma_daemon/",
       "../python-sidecar/whisper-cpp/": "whisper-cpp/",
       "resources/THIRD_PARTY_NOTICES.txt": "THIRD_PARTY_NOTICES.txt",
-      "resources/licenses/": "licenses/"
+      "resources/licenses/": "licenses/",
+      "../docs/PRIVACY.md": "PRIVACY.md",
+      "../docs/WINDOWS_DISTRIBUTION.md": "WINDOWS_DISTRIBUTION.md",
+      "../docs/EULA.md": "EULA.md"
     }
   },
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIwOUM0NTg1MTc4RDVGQjIKUldTeVg0MFhoVVdjSUNrNDlycTVHTGk3V2lKb3FkaHhFdndRYUV4T1gwcHYvbU5GZ2FBUVdFWG0K",
       "endpoints": [
-        "https://example.invalid/erabiflow/stable/latest.json"
+        "https://github.com/YOSHOLabs/ErabiFlow/releases/latest/download/latest.json"
       ],
       "windows": {
         "installMode": "passive"

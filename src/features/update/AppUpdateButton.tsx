@@ -3,12 +3,14 @@ import { getVersion } from "@tauri-apps/api/app"
 import { isTauri } from "@tauri-apps/api/core"
 import { relaunch } from "@tauri-apps/plugin-process"
 import { check, type Update } from "@tauri-apps/plugin-updater"
-import { CheckCircle2, Download, LoaderCircle, RefreshCw, X } from "lucide-react"
+import { CheckCircle2, Download, ExternalLink, LifeBuoy, LoaderCircle, RefreshCw, ShieldCheck, X } from "lucide-react"
+import { openReleaseUrl } from "@/lib/publicSite"
 import {
     releaseChannel,
     releaseChannelLabel,
     updaterEnabled,
 } from "@/lib/releaseChannel"
+import privacyPolicyText from "../../../docs/PRIVACY.md?raw"
 
 type UpdateState = "idle" | "checking" | "available" | "current" | "downloading" | "error"
 
@@ -28,6 +30,7 @@ export function AppUpdateButton() {
     const [error, setError] = useState("")
     const [downloaded, setDownloaded] = useState(0)
     const [downloadSize, setDownloadSize] = useState(0)
+    const [privacyOpen, setPrivacyOpen] = useState(false)
     const triggerRef = useRef<HTMLButtonElement>(null)
     const dialogRef = useRef<HTMLDivElement>(null)
     const closeRef = useRef<HTMLButtonElement>(null)
@@ -74,6 +77,10 @@ export function AppUpdateButton() {
         }
     }, [open])
 
+    useEffect(() => {
+        if (!open) setPrivacyOpen(false)
+    }, [open])
+
     const installUpdate = useCallback(async () => {
         if (!candidate) return
         setState("downloading")
@@ -101,6 +108,20 @@ export function AppUpdateButton() {
         return Math.min(100, Math.round((downloaded / downloadSize) * 100))
     }, [downloadSize, downloaded])
 
+    const openReleaseDestination = useCallback(async (
+        kind: "supportUrl" | "downloadUrl",
+    ) => {
+        try {
+            if (!await openReleaseUrl(kind)) {
+                setError("案内先を開けませんでした。READMEの公開URLを確認してください。")
+                setState("error")
+            }
+        } catch {
+            setError("案内先を開けませんでした。通信状態と既定ブラウザーを確認してください。")
+            setState("error")
+        }
+    }, [])
+
     const statusDot = state === "available"
         ? "bg-cyan-300"
         : state === "error"
@@ -117,7 +138,7 @@ export function AppUpdateButton() {
                 aria-label="バージョンと更新を確認"
             >
                 <span className={`h-1.5 w-1.5 rounded-full ${statusDot}`} />
-                v{currentVersion}
+                Beta {currentVersion}
                 {import.meta.env.DEV && <span className="text-cyan-300/80">{releaseChannelLabel[releaseChannel]}</span>}
             </button>
 
@@ -153,13 +174,14 @@ export function AppUpdateButton() {
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 {import.meta.env.DEV && <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-300">{releaseChannelLabel[releaseChannel]} channel</p>}
-                                <h2 id="update-title" className="mt-1 text-base font-semibold text-zinc-100">ErabiFlow v{currentVersion}</h2>
+                                <h2 id="update-title" className="mt-1 text-base font-semibold text-zinc-100">ErabiFlow Beta — Version {currentVersion}</h2>
                             </div>
                             <button ref={closeRef} type="button" onClick={() => setOpen(false)} className="rounded-md p-1 text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200" aria-label="閉じる"><X className="h-4 w-4" /></button>
                         </div>
 
                         <div className="mt-5 rounded-lg border border-white/[0.07] bg-black/20 p-4 text-xs text-zinc-400">
-                            {state === "idle" && <p>このチャンネルの更新情報を確認できます。</p>}
+                            {!updaterEnabled && <p>初回公開版では自動更新を使用しません。新しい版はGitHub Releasesから手動でインストールしてください。</p>}
+                            {updaterEnabled && state === "idle" && <p>このチャンネルの更新情報を確認できます。</p>}
                             {state === "checking" && <p className="flex items-center gap-2"><LoaderCircle className="h-4 w-4 animate-spin text-cyan-300" />更新情報を確認しています…</p>}
                             {state === "current" && <p className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" />最新バージョンです。</p>}
                             {state === "available" && candidate && (
@@ -178,12 +200,27 @@ export function AppUpdateButton() {
                         </div>
 
                         <div className="mt-4 flex justify-end gap-2">
-                            {state === "available" && candidate ? (
+                            {!updaterEnabled ? (
+                                <>
+                                    <button type="button" onClick={() => void openReleaseDestination("downloadUrl")} className="flex items-center gap-1.5 rounded-md bg-cyan-300 px-3 py-2 text-xs font-semibold text-[#071014] hover:bg-cyan-200"><ExternalLink className="h-3.5 w-3.5" />GitHub Releasesを開く</button>
+                                    <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-white/[0.1] px-3 py-2 text-xs font-medium text-zinc-200 hover:border-cyan-300/30">閉じる</button>
+                                </>
+                            ) : state === "available" && candidate ? (
                                 <button type="button" onClick={() => void installUpdate()} className="rounded-md bg-cyan-300 px-3 py-2 text-xs font-semibold text-[#071014] hover:bg-cyan-200">更新して再起動</button>
                             ) : (
                                 <button type="button" disabled={state === "checking" || state === "downloading"} onClick={() => void checkForUpdates(false)} className="flex items-center gap-2 rounded-md border border-white/[0.1] px-3 py-2 text-xs font-medium text-zinc-200 hover:border-cyan-300/30 disabled:opacity-50"><RefreshCw className="h-3.5 w-3.5" />更新を確認</button>
                             )}
                         </div>
+                        <div className="mt-3 flex justify-end gap-3 border-t border-white/[0.06] pt-3 text-[10px] text-zinc-500">
+                            <button type="button" onClick={() => void openReleaseDestination("supportUrl")} className="flex items-center gap-1 hover:text-zinc-200"><LifeBuoy className="h-3 w-3" />GitHub Issues</button>
+                            <button type="button" aria-expanded={privacyOpen} aria-controls="bundled-privacy-policy" onClick={() => setPrivacyOpen((value) => !value)} className="flex items-center gap-1 hover:text-zinc-200"><ShieldCheck className="h-3 w-3" />{privacyOpen ? "プライバシーを閉じる" : "プライバシー"}</button>
+                        </div>
+                        {privacyOpen && (
+                            <section id="bundled-privacy-policy" aria-labelledby="bundled-privacy-title" className="mt-4 rounded-lg border border-white/[0.08] bg-black/25 p-4 text-zinc-300">
+                                <h3 id="bundled-privacy-title" className="text-sm font-semibold text-zinc-100">プライバシー方針（同梱版）</h3>
+                                <pre className="mt-3 whitespace-pre-wrap break-words font-sans text-[11px] leading-5 text-zinc-400">{privacyPolicyText}</pre>
+                            </section>
+                        )}
                     </div>
                 </div>
             )}

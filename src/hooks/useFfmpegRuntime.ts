@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { cancelDownloadJob, runDownloadJob } from "@/controllers/backgroundDownloads"
-import { isActiveBackgroundJob } from "@/lib/backgroundJob"
+import { canCancelDownloadJob, isActiveBackgroundJob } from "@/lib/backgroundJob"
 import { isTauriEnv } from "@/lib/utils"
 import { useBackgroundJobStore } from "@/stores/backgroundJobs"
 import {
@@ -38,6 +38,7 @@ export function useFfmpegRuntime() {
     const [error, setError] = useState<string | null>(null)
     const downloadJob = useBackgroundJobStore((state) => state.jobs["ffmpeg-download"])
     const isDownloading = isActiveBackgroundJob(downloadJob)
+    const canCancel = canCancelDownloadJob(downloadJob)
 
     const refresh = useCallback(async () => {
         if (demoMissing) {
@@ -141,6 +142,7 @@ export function useFfmpegRuntime() {
         ready,
         isLoading,
         isDownloading,
+        canCancel,
         error,
         refresh,
         download,

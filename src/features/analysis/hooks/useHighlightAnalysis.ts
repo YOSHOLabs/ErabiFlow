@@ -9,6 +9,7 @@ import { useDocumentStore } from "@/stores/document"
 import { isTauriEnv } from "@/lib/utils"
 import { createAnalysisArtifactFromResponse } from "@/lib/analysisArtifact"
 import { canApplyAnalysisResult, createAnalysisJob } from "@/lib/analysisJob"
+import { visibleAnalysisError, type AnalysisErrorState } from "@/lib/analysisError"
 
 /** フックの引数: daemon 進捗を親から制御するための setter */
 export interface HighlightAnalysisOptions {
@@ -43,9 +44,10 @@ export function useHighlightAnalysis({
     const cancelActiveAnalysisJob = useDocumentStore((s) => s.cancelActiveAnalysisJob)
     const gpuType = useDocumentStore((s) => s.processing.gpuType)
     const analysisGameId = useDocumentStore((s) => s.processing.analysisGameId)
+    const analysisJobs = useDocumentStore((s) => s.analysisJobs)
 
     const [isAnalyzing, setIsAnalyzing] = useState(false)
-    const [analysisError, setAnalysisError] = useState("")
+    const [analysisErrorState, setAnalysisErrorState] = useState<AnalysisErrorState | null>(null)
     const activeClientJobIdRef = useRef<string | null>(null)
     const inFlightRef = useRef(false)
 
@@ -66,7 +68,7 @@ export function useHighlightAnalysis({
         if (!inputPath || !isTauri || inFlightRef.current) return
         inFlightRef.current = true
         setIsAnalyzing(true)
-        setAnalysisError("")
+        setAnalysisErrorState(null)
         setAgentThinking("")
         setRecommendedCuts([])
         clearRejectedHighlightCandidates()
@@ -126,7 +128,11 @@ export function useHighlightAnalysis({
             if (response.segments && Array.isArray(response.segments)) {
                 setSubtitles(artifact.subtitles)
             } else {
-                setAnalysisError("Warning: no segments returned from backend")
+                setAnalysisErrorState({
+                    jobId: clientJobId,
+                    sourcePath: inputPath,
+                    message: "Warning: no segments returned from backend",
+                })
             }
 
             if (response.transcript_text) {
@@ -147,11 +153,11 @@ export function useHighlightAnalysis({
             if (useDocumentStore.getState().activeAnalysisJobId !== clientJobId) return
             if (/キャンセル|cancel/i.test(message)) {
                 cancelActiveAnalysisJob("解析をキャンセルしました")
-                setAnalysisError("")
+                setAnalysisErrorState(null)
                 setDaemonMessage("解析をキャンセルしました")
             } else {
                 failActiveAnalysisJob(message)
-                setAnalysisError(message)
+                setAnalysisErrorState({ jobId: clientJobId, sourcePath: inputPath, message })
             }
         } finally {
             activeClientJobIdRef.current = null
@@ -181,7 +187,7 @@ export function useHighlightAnalysis({
         analyze,
         cancel,
         isAnalyzing,
-        analysisError,
+        analysisError: visibleAnalysisError(analysisErrorState, inputPath, analysisJobs.map((job) => job.id)),
         estimatedMinutes,
     }
 }

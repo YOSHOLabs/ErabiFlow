@@ -4,6 +4,10 @@
     "targets": "msi",
     "externalBin": [],
     "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
       "wix": {
         "language": "ja-JP"
       }
@@ -17,7 +21,10 @@
       "../python-sidecar/whisper-cpp/whisper-cli.exe": "whisper-cpp/whisper-cli.exe",
       "../python-sidecar/whisper-cpp/whisper.dll": "whisper-cpp/whisper.dll",
       "resources/THIRD_PARTY_NOTICES.txt": "THIRD_PARTY_NOTICES.txt",
-      "resources/licenses/": "licenses/"
+      "resources/licenses/": "licenses/",
+      "../docs/PRIVACY.md": "PRIVACY.md",
+      "../docs/WINDOWS_DISTRIBUTION.md": "WINDOWS_DISTRIBUTION.md",
+      "../docs/EULA.md": "EULA.md"
     }
   }
 }

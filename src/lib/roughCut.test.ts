@@ -97,7 +97,24 @@ test("maps source subtitles onto the kept sequence for NLE import", () => {
         }))
         assert.match(srt, /00:00:02,000 --> 00:00:04,000/)
         assert.match(srt, /00:00:12,500 --> 00:00:14,000/)
-        assert.doesNotMatch(srt, /没/)
+    assert.doesNotMatch(srt, /没/)
+})
+
+test("sorts SRT cues by sequence time after KEEP clips are reordered", () => {
+    const srt = roughCutDocumentToSrt(source({
+        timelineClips: [
+            { id: "late-source-first", mediaStart: 90, mediaEnd: 100 },
+            { id: "early-source-second", mediaStart: 10, mediaEnd: 20 },
+        ],
+        subtitles: [
+            { id: "early", start: 12, end: 13, text: "second clip" },
+            { id: "late", start: 92, end: 93, text: "first clip" },
+        ],
+    }))
+
+    assert.ok(srt.indexOf("first clip") < srt.indexOf("second clip"))
+    assert.match(srt, /^1\r\n00:00:02,000 --> 00:00:03,000\r\nfirst clip/m)
+    assert.match(srt, /2\r\n00:00:12,000 --> 00:00:13,000\r\nsecond clip/)
 })
 
 test("ignores legacy speed and edit effects in every rough-cut handoff", () => {
