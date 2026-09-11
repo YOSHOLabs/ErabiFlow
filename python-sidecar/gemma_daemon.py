@@ -28,6 +28,10 @@ import threading
 # ログ用ヘルパー（stderr のみ — stdout は IPC 専用）
 # ====================================================================
 _ipc_stdout = sys.stdout
+# Rust sends UTF-8 JSONL, including non-ASCII media paths. Frozen Windows
+# interpreters may otherwise decode stdin using the system code page.
+if sys.stdin is not None:
+    sys.stdin.reconfigure(encoding="utf-8", errors="strict")
 try:
     _ipc_stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")

@@ -32,6 +32,7 @@ npmのbrowserslist・baseline-browser-mappingの脆弱性は必要な推移依�
 - checksum生成先とcheck:light参照先の不一致: 修正が必要。MSI横のSHA256SUMS.txtへ統一。
 - Release NotesのBeta表記とリンク不足: 修正が必要。一般ユーザー向けに更新。
 - windowed daemonのIPC: 追加情報が必要。今回生成したdaemonでboot / health / shutdownのJSONL応答を実測。MSI組込み後の再起動は別途検証する。
+- 日本語パスの実解析失敗: 修正が必要。Windows既定文字コードでUTF-8入力を誤読していた。stdinをUTF-8に固定し、CP932環境で失敗する回帰testを追加。
 
 Node/Python/Rust unit、ブラウザdemo、配布frontendの成功はMSI・実動画・実NLE・別PC確認の代替ではない。Rustの条件付きtestは環境変数なしで早期returnする。source rough cut testは実動画と公式FFmpegを指定して別途実行した。effects/tracksの条件付きtestは素材未指定で、実メディア成功に含めない。
 
